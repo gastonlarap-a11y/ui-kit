@@ -35,8 +35,19 @@ export interface ButtonProps
 }
 
 /**
+ * Trigger for an action. Renders a native `<button>`, so keyboard activation, focus
+ * and form participation come from the platform rather than from JavaScript.
+ *
  * Defaults to `type="button"` so it never submits a surrounding form by accident;
  * pass `type="submit"` explicitly when that is what you want.
+ *
+ * To render a link that looks like a button, style an `<a>` with `buttonVariants()`
+ * instead of nesting one inside — a button containing a link is invalid markup.
+ *
+ * @example
+ * <Button onClick={save}>Save changes</Button>
+ * <Button variant="danger" size="sm">Delete</Button>
+ * <a className={buttonVariants({ variant: "outline" })} href="/docs">Docs</a>
  */
 export function Button({
   className,

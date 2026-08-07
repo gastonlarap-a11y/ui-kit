@@ -11,6 +11,17 @@ export type FieldProps = ComponentProps<typeof BaseField.Root>;
  * Groups a label, control, description and error message into one accessible unit.
  * Base UI generates the ids and the `aria-describedby` / `aria-invalid` wiring, which
  * is the part hand-rolled form fields almost always get wrong.
+ *
+ * Validation runs on submit by default. Pass `validationMode="onChange"` or
+ * `"onBlur"` to report errors sooner, and `validate` for a custom rule.
+ *
+ * @example
+ * <Field name="email" validationMode="onChange">
+ *   <FieldLabel>Work email</FieldLabel>
+ *   <Input type="email" required />
+ *   <FieldDescription>We only use this for billing receipts.</FieldDescription>
+ *   <FieldError match="valueMissing">An email address is required.</FieldError>
+ * </Field>
  */
 export function Field({ className, ...props }: FieldProps) {
   return (

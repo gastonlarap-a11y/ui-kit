@@ -4,6 +4,21 @@ import { cn } from "../../lib/cn.js";
 
 type DivProps = HTMLAttributes<HTMLDivElement> & { ref?: Ref<HTMLDivElement> };
 
+/**
+ * Surface container for a single unit of content. Compose it with `CardHeader`,
+ * `CardTitle`, `CardDescription`, `CardContent` and `CardFooter`; every part is a
+ * plain element with a `data-slot`, so nothing here traps you into one layout.
+ *
+ * @example
+ * <Card>
+ *   <CardHeader>
+ *     <CardTitle>Monthly report</CardTitle>
+ *     <CardDescription>Generated on the first day of every month.</CardDescription>
+ *   </CardHeader>
+ *   <CardContent>…</CardContent>
+ *   <CardFooter><Button size="sm">Download</Button></CardFooter>
+ * </Card>
+ */
 export function Card({ className, ...props }: DivProps) {
   return (
     <div
