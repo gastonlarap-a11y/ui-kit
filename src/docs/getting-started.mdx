@@ -1,0 +1,111 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Getting started" />
+
+# @galarap/ui
+
+Accessible React components built on [Base UI](https://base-ui.com) and Tailwind CSS v4.
+
+Every component in the sidebar has its own page with a live example, the exact import
+line, a copyable snippet and the full list of props.
+
+## Install
+
+```bash
+npm install @galarap/ui
+```
+
+Requires React 19.
+
+## Set up the styles
+
+Pick one of the two paths. Both give the same result; the first produces less CSS.
+
+### With Tailwind CSS v4
+
+Import the tokens and point Tailwind at the package, so your own build emits only the
+utilities these components actually render:
+
+```css
+/* app/globals.css */
+@import "tailwindcss";
+@import "@galarap/ui/tokens.css";
+@source "../node_modules/@galarap/ui/dist";
+```
+
+### Without Tailwind
+
+Import the precompiled stylesheet instead. It ships without preflight, so it will not
+reset your application's own base styles:
+
+```ts
+import "@galarap/ui/styles.css";
+```
+
+## Use a component
+
+Everything is a named export from the package root:
+
+```tsx
+import { Button, Card, CardHeader, CardTitle } from "@galarap/ui";
+
+export function Example() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Monthly report</CardTitle>
+      </CardHeader>
+      <Button onClick={download}>Download</Button>
+    </Card>
+  );
+}
+```
+
+## Server Components
+
+The package ships its own `"use client"` boundaries, so interactive components work
+inside a React Server Component without wrapping them yourself. You can render
+`Dialog`, `Field` or `Input` straight from a server page.
+
+## Theming
+
+Two independent attributes, both usable on `<html>` or on any subtree:
+
+| Attribute      | Values                                       |
+| -------------- | -------------------------------------------- |
+| `data-theme`   | `blue` (default), `green`, `purple`          |
+| `class="dark"` | opts that subtree into the dark color scheme |
+
+```tsx
+<html lang="en" data-theme="green" className="dark">
+```
+
+Scoped to part of a page:
+
+```tsx
+<div className="dark">
+  <div data-theme="purple">
+    <Button>Only this subtree</Button>
+  </div>
+</div>
+```
+
+Use the toolbar at the top of this page to preview any component in either theme.
+
+## Overriding styles
+
+Every component accepts `className`, merged with `tailwind-merge`. Conflicting
+utilities replace the component's own defaults instead of fighting them in the cascade:
+
+```tsx
+<Button className="w-full rounded-none">Full width</Button>
+```
+
+Each part of a compound component also carries a `data-slot` attribute, so you can
+target them from outside:
+
+```css
+[data-slot="dialog-content"] {
+  max-width: 32rem;
+}
+```

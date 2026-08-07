@@ -23,8 +23,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  render: () => (
-    <Card className="max-w-sm">
+  render: (args) => (
+    <Card {...args} className="max-w-sm">
       <CardHeader>
         <CardTitle>Monthly report</CardTitle>
         <CardDescription>

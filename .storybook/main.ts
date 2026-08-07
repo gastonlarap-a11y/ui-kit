@@ -48,6 +48,15 @@ const config: StorybookConfig = {
     name: "@storybook/react-vite",
     options: {},
   },
+  docs: {
+    /**
+     * The sidebar lists one documentation page per component instead of every
+     * individual story. This is a reference you consult after installing the package,
+     * not a workbench for building it — the stories are still reachable, and they all
+     * appear inline on each component's page anyway.
+     */
+    docsMode: true,
+  },
   typescript,
 };
 

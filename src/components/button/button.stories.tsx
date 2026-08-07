@@ -10,9 +10,13 @@ import { Button } from "./button.js";
 const meta = {
   title: "Atoms/Button",
   component: Button,
+  /**
+   * No `onClick: fn()` here on purpose. A spy in the shared args is serialised into
+   * every snippet as `onClick={function eY(){}}`, which makes none of the examples
+   * copyable. Stories that assert on the handler declare their own.
+   */
   args: {
     children: "Save changes",
-    onClick: fn(),
   },
   argTypes: {
     variant: variantArgType(
@@ -70,18 +74,18 @@ export const Sizes: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     const button = within(canvasElement).getByRole("button");
     await expect(button).toBeDisabled();
     // Genuinely inert, not just faded: pointer events are off, so no click lands.
     await expect(getComputedStyle(button).pointerEvents).toBe("none");
-    await expect(args.onClick).not.toHaveBeenCalled();
   },
 };
 
 /** Behaviour check, not a usage example — kept out of the docs page. */
 export const ClickIsForwarded: Story = {
   tags: ["!autodocs"],
+  args: { onClick: fn() },
   play: async ({ canvasElement, args }) => {
     const button = within(canvasElement).getByRole("button");
     await userEvent.click(button);
@@ -104,6 +108,8 @@ export const ThemeMatrix: Story = {
       // nothing. Show what a consumer would actually write instead.
       source: {
         code: [
+          'import { Button } from "@galarap/ui";',
+          "",
           '<div className="dark">',
           '  <div data-theme="purple">',
           "    <Button>Scoped to this subtree only</Button>",

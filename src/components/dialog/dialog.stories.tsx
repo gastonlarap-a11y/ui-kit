@@ -42,8 +42,8 @@ const Example = () => (
  * is the code you would actually copy instead of `<Example />`.
  */
 export const Default: Story = {
-  render: () => (
-    <Dialog>
+  render: (args) => (
+    <Dialog {...args}>
       <DialogTrigger
         render={<Button variant="outline">Delete project</Button>}
       />

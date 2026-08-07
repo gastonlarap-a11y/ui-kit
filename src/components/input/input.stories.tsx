@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, within } from "storybook/test";
 
-import { Input } from "./input.js";
-
 import { classNameArgType } from "../../../.storybook/arg-types.js";
+import { Input } from "./input.js";
 
 const meta = {
   title: "Atoms/Input",
@@ -15,6 +14,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Standalone. Inside a `Field` the label wiring is automatic — see the Field page. */
 export const Default: Story = {
   render: (args) => (
     <label className="flex max-w-sm flex-col gap-1.5">
@@ -22,11 +22,6 @@ export const Default: Story = {
       <Input {...args} />
     </label>
   ),
-  play: async ({ canvasElement }) => {
-    const input = within(canvasElement).getByLabelText("Work email");
-    await userEvent.type(input, "ada@example.com");
-    await expect(input).toHaveValue("ada@example.com");
-  },
 };
 
 export const Disabled: Story = {
@@ -36,4 +31,14 @@ export const Disabled: Story = {
       <Input {...args} disabled />
     </label>
   ),
+};
+
+export const AcceptsTypedText: Story = {
+  tags: ["!autodocs"],
+  render: Default.render,
+  play: async ({ canvasElement }) => {
+    const input = within(canvasElement).getByLabelText("Work email");
+    await userEvent.type(input, "ada@example.com");
+    await expect(input).toHaveValue("ada@example.com");
+  },
 };
