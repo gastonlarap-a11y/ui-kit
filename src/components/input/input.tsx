@@ -18,8 +18,18 @@ export const inputVariants = tv({
 export type InputProps = ComponentProps<typeof BaseInput>;
 
 /**
- * Wraps Base UI's Input, which wires itself to a surrounding `Field` automatically
- * (id/label association, `aria-describedby`, `aria-invalid`) with no extra props.
+ * Single-line text input. Wraps Base UI's Input, which wires itself to a surrounding
+ * `Field` automatically — id/label association, `aria-describedby` for the description
+ * and `aria-invalid` on error — with no extra props on your side.
+ *
+ * Prefer using it inside a `Field`; standalone it still needs a label of your own.
+ *
+ * @example
+ * <Field name="email">
+ *   <FieldLabel>Work email</FieldLabel>
+ *   <Input type="email" placeholder="you@company.com" />
+ *   <FieldError match="valueMissing">An email address is required.</FieldError>
+ * </Field>
  */
 export function Input({ className, ...props }: InputProps) {
   return (

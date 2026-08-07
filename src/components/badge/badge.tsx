@@ -23,6 +23,14 @@ export interface BadgeProps
   ref?: Ref<HTMLSpanElement>;
 }
 
+/**
+ * Short, non-interactive status label. Renders a `<span>`, so it can sit inline
+ * inside a sentence, a table cell or a card footer.
+ *
+ * It carries no ARIA role: the text itself is the meaning. If the badge conveys a
+ * state that changes at runtime, announce that change from the surrounding live
+ * region rather than from here.
+ */
 export function Badge({ className, variant, ...props }: BadgeProps) {
   return (
     <span

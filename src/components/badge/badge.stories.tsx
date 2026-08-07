@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import {
+  classNameArgType,
+  variantArgType,
+} from "../../../.storybook/arg-types.js";
 import { Badge } from "./badge.js";
 
 const meta = {
@@ -7,10 +11,13 @@ const meta = {
   component: Badge,
   args: { children: "Active" },
   argTypes: {
-    variant: {
-      control: "select",
-      options: ["neutral", "accent", "success", "warning", "danger", "outline"],
-    },
+    variant: variantArgType(
+      ["neutral", "accent", "success", "warning", "danger", "outline"],
+      "Intent of the label. `neutral` for plain metadata, `success`/`warning`/`danger` " +
+        "for state, `accent` to tie it to the current brand, `outline` when the badge " +
+        "sits on an already busy surface.",
+    ),
+    className: classNameArgType,
   },
 } satisfies Meta<typeof Badge>;
 

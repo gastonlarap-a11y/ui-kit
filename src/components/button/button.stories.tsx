@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 
+import {
+  classNameArgType,
+  variantArgType,
+} from "../../../.storybook/arg-types.js";
 import { Button } from "./button.js";
 
 const meta = {
@@ -11,11 +15,16 @@ const meta = {
     onClick: fn(),
   },
   argTypes: {
-    variant: {
-      control: "select",
-      options: ["solid", "outline", "ghost", "danger"],
-    },
-    size: { control: "select", options: ["sm", "md", "lg"] },
+    variant: variantArgType(
+      ["solid", "outline", "ghost", "danger"],
+      "Visual weight. `solid` for the one primary action on the screen, `outline` and " +
+        "`ghost` for secondary ones, `danger` for destructive actions.",
+    ),
+    size: variantArgType(
+      ["sm", "md", "lg"],
+      "Control height. `md` is the default; `sm` suits dense toolbars and table rows.",
+    ),
+    className: classNameArgType,
   },
 } satisfies Meta<typeof Button>;
 
@@ -70,7 +79,9 @@ export const Disabled: Story = {
   },
 };
 
+/** Behaviour check, not a usage example — kept out of the docs page. */
 export const ClickIsForwarded: Story = {
+  tags: ["!autodocs"],
   play: async ({ canvasElement, args }) => {
     const button = within(canvasElement).getByRole("button");
     await userEvent.click(button);
@@ -87,6 +98,21 @@ const BRANDS = ["blue", "green", "purple"] as const;
  * — the blue default alone would hide problems in the other two palettes.
  */
 export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      // The real render is a nested map over brands and schemes, which documents
+      // nothing. Show what a consumer would actually write instead.
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          "    <Button>Scoped to this subtree only</Button>",
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
   render: (args) => (
     <div className="flex flex-col gap-3">
       {(["light", "dark"] as const).map((scheme) => (
@@ -156,7 +182,9 @@ export const ThemeMatrix: Story = {
   },
 };
 
+/** Behaviour check, not a usage example — kept out of the docs page. */
 export const ConsumerClassNameWins: Story = {
+  tags: ["!autodocs"],
   args: { className: "bg-danger" },
   play: async ({ canvasElement }) => {
     const button = within(canvasElement).getByRole("button");

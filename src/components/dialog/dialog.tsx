@@ -7,7 +7,26 @@ import { cn } from "../../lib/cn.js";
 
 export type DialogProps = ComponentProps<typeof BaseDialog.Root>;
 
-/** Focus trapping, scroll locking, Escape handling and focus restore come from Base UI. */
+/**
+ * Modal dialog. Focus trapping, scroll locking, Escape handling and returning focus
+ * to the trigger all come from Base UI, so none of it is yours to maintain.
+ *
+ * Uncontrolled by default; pass `open` and `onOpenChange` to drive it yourself.
+ * Always give it a `DialogTitle` — it becomes the dialog's accessible name.
+ *
+ * @example
+ * <Dialog>
+ *   <DialogTrigger render={<Button variant="outline">Delete project</Button>} />
+ *   <DialogContent>
+ *     <DialogTitle>Delete project</DialogTitle>
+ *     <DialogDescription>This cannot be undone.</DialogDescription>
+ *     <DialogFooter>
+ *       <DialogClose render={<Button variant="ghost">Cancel</Button>} />
+ *       <DialogClose render={<Button variant="danger">Delete</Button>} />
+ *     </DialogFooter>
+ *   </DialogContent>
+ * </Dialog>
+ */
 export function Dialog(props: DialogProps) {
   return <BaseDialog.Root {...props} />;
 }

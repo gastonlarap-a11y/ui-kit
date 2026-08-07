@@ -3,10 +3,13 @@ import { expect, userEvent, within } from "storybook/test";
 
 import { Input } from "./input.js";
 
+import { classNameArgType } from "../../../.storybook/arg-types.js";
+
 const meta = {
   title: "Atoms/Input",
   component: Input,
   args: { placeholder: "you@company.com" },
+  argTypes: { className: classNameArgType },
 } satisfies Meta<typeof Input>;
 
 export default meta;

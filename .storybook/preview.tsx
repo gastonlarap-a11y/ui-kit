@@ -71,6 +71,11 @@ const preview: Preview = {
     controls: { expanded: true },
     /* Any axe violation fails the Vitest run rather than just showing a warning. */
     a11y: { test: "error" },
+    docs: {
+      /* Show the usage snippet expanded instead of behind a "Show code" button —
+         reading how to use a component should not need a click. */
+      canvas: { sourceState: "shown" },
+    },
   },
   decorators: [withTheme],
   tags: ["autodocs"],

@@ -37,8 +37,29 @@ const Example = () => (
   </Dialog>
 );
 
+/**
+ * Written out inline rather than reusing `Example`, so the snippet on the docs page
+ * is the code you would actually copy instead of `<Example />`.
+ */
 export const Default: Story = {
-  render: () => <Example />,
+  render: () => (
+    <Dialog>
+      <DialogTrigger
+        render={<Button variant="outline">Delete project</Button>}
+      />
+      <DialogContent>
+        <DialogTitle>Delete project</DialogTitle>
+        <DialogDescription>
+          This permanently removes the project and every deployment attached to
+          it.
+        </DialogDescription>
+        <DialogFooter>
+          <DialogClose render={<Button variant="ghost">Cancel</Button>} />
+          <DialogClose render={<Button variant="danger">Delete</Button>} />
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
 };
 
 /**
@@ -46,6 +67,7 @@ export const Default: Story = {
  * whole document rather than the story canvas.
  */
 export const OpensAndTrapsFocus: Story = {
+  tags: ["!autodocs"],
   render: () => <Example />,
   play: async ({ canvasElement }) => {
     const trigger = within(canvasElement).getByRole("button", {
@@ -72,6 +94,7 @@ export const OpensAndTrapsFocus: Story = {
 };
 
 export const ClosesOnEscapeAndRestoresFocus: Story = {
+  tags: ["!autodocs"],
   render: () => <Example />,
   play: async ({ canvasElement }) => {
     const trigger = within(canvasElement).getByRole("button", {

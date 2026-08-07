@@ -11,9 +11,12 @@ import {
   CardTitle,
 } from "./card.js";
 
+import { classNameArgType } from "../../../.storybook/arg-types.js";
+
 const meta = {
   title: "Molecules/Card",
   component: Card,
+  argTypes: { className: classNameArgType },
 } satisfies Meta<typeof Card>;
 
 export default meta;
