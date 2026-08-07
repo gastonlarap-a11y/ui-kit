@@ -2,6 +2,8 @@
 
 Accessible React component library built on [Base UI](https://base-ui.com) and Tailwind CSS v4.
 
+**[Browse the components →](https://gastonlarap-a11y.github.io/ui-kit/)**
+
 - **ESM-only**, tree-shakeable, ships `"use client"` boundaries intact for React Server Components.
 - **Two theming axes**: brand palette (`data-theme`) and color scheme (light / dark), independent of each other.
 - **Accessibility is tested, not claimed** — every component is audited with axe on each story.
