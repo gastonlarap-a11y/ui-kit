@@ -8,6 +8,19 @@ export {
   type AccordionProps,
 } from "./components/accordion/index.js";
 export {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  alertVariants,
+  type AlertProps,
+} from "./components/alert/index.js";
+export {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  type AvatarProps,
+} from "./components/avatar/index.js";
+export {
   Badge,
   badgeVariants,
   type BadgeProps,
@@ -75,6 +88,7 @@ export {
   type PopoverContentProps,
   type PopoverProps,
 } from "./components/popover/index.js";
+export { Progress, type ProgressProps } from "./components/progress/index.js";
 export {
   Radio,
   RadioGroup,
@@ -93,7 +107,22 @@ export {
   type SelectProps,
   type SelectTriggerProps,
 } from "./components/select/index.js";
+export {
+  Separator,
+  type SeparatorProps,
+} from "./components/separator/index.js";
+export { Skeleton, type SkeletonProps } from "./components/skeleton/index.js";
 export { Switch, type SwitchProps } from "./components/switch/index.js";
+export {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./components/table/index.js";
 export {
   Tabs,
   TabsList,
