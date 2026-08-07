@@ -1,17 +1,24 @@
 name: CI
 
+# Pull requests only. `main` is protected, so nothing lands without passing here first —
+# re-running the same commit after the merge would just spend a second runner to learn
+# what we already know. Deployment and publishing are handled by docs.yml and release.yml.
 on:
-  push:
-    branches: [main]
   pull_request:
+    # A changeset or a README edit cannot break the build.
+    paths-ignore:
+      - "**/*.md"
+      - "LICENSE"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality:
-    name: Lint, types and formatting
+  # Deliberately one job. Every extra job repeats checkout, setup-node and `npm ci`,
+  # which costs more runner time than the checks themselves.
+  verify:
+    name: Verify
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -20,55 +27,19 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run format:check
 
-  test:
-    name: Stories, interactions and accessibility
-    needs: quality
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install Chromium for the browser-mode tests
+        run: npx playwright install --with-deps chromium
       - run: npm run test
 
-  package:
-    name: Publishable artifact
-    needs: quality
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
       # Validates module and type resolution against the real tarball, not the source.
       - run: npm run pack-check
       - run: npm run check:tarball
 
-  storybook:
-    name: Documentation build
-    needs: quality
-    # On main the Docs workflow builds and deploys it, so this only guards PRs.
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
+      # Cheap here, and it keeps a broken MDX or story from reaching main and taking
+      # the Pages deployment down with it.
       - run: npm run build-storybook
-      - uses: actions/upload-artifact@v7
-        with:
-          name: storybook-static
-          path: storybook-static
-          retention-days: 7

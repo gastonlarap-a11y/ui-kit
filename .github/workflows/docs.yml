@@ -1,8 +1,16 @@
 name: Docs
 
+# Only when something that ends up on the site actually changed. A README tweak or a
+# workflow edit does not need a rebuild and redeploy.
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - ".storybook/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/docs.yml"
   workflow_dispatch:
 
 permissions:
