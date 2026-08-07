@@ -18,6 +18,7 @@ export {
   CardHeader,
   CardTitle,
 } from "./components/card/index.js";
+export { Checkbox, type CheckboxProps } from "./components/checkbox/index.js";
 export {
   Dialog,
   DialogClose,
@@ -41,3 +42,31 @@ export {
   inputVariants,
   type InputProps,
 } from "./components/input/index.js";
+export {
+  NumberField,
+  type NumberFieldProps,
+} from "./components/number-field/index.js";
+export {
+  Radio,
+  RadioGroup,
+  type RadioGroupProps,
+  type RadioProps,
+} from "./components/radio/index.js";
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectGroupLabel,
+  SelectItem,
+  SelectTrigger,
+  type SelectContentProps,
+  type SelectItemProps,
+  type SelectProps,
+  type SelectTriggerProps,
+} from "./components/select/index.js";
+export { Switch, type SwitchProps } from "./components/switch/index.js";
+export {
+  Textarea,
+  textareaVariants,
+  type TextareaProps,
+} from "./components/textarea/index.js";
