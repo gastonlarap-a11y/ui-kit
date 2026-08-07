@@ -1,6 +1,13 @@
 export { cn } from "./lib/cn.js";
 
 export {
+  Accordion,
+  AccordionItem,
+  AccordionPanel,
+  AccordionTrigger,
+  type AccordionProps,
+} from "./components/accordion/index.js";
+export {
   Badge,
   badgeVariants,
   type BadgeProps,
@@ -31,6 +38,18 @@ export {
   type DialogProps,
 } from "./components/dialog/index.js";
 export {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuGroupLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  type DropdownMenuContentProps,
+  type DropdownMenuProps,
+} from "./components/dropdown-menu/index.js";
+export {
   Field,
   FieldDescription,
   FieldError,
@@ -46,6 +65,16 @@ export {
   NumberField,
   type NumberFieldProps,
 } from "./components/number-field/index.js";
+export {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverDescription,
+  PopoverTitle,
+  PopoverTrigger,
+  type PopoverContentProps,
+  type PopoverProps,
+} from "./components/popover/index.js";
 export {
   Radio,
   RadioGroup,
@@ -66,7 +95,23 @@ export {
 } from "./components/select/index.js";
 export { Switch, type SwitchProps } from "./components/switch/index.js";
 export {
+  Tabs,
+  TabsList,
+  TabsPanel,
+  TabsTab,
+  type TabsProps,
+} from "./components/tabs/index.js";
+export {
   Textarea,
   textareaVariants,
   type TextareaProps,
 } from "./components/textarea/index.js";
+export { ToastProvider, useToast } from "./components/toast/index.js";
+export {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  type TooltipContentProps,
+  type TooltipProps,
+} from "./components/tooltip/index.js";
