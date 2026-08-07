@@ -56,6 +56,8 @@ jobs:
   storybook:
     name: Documentation build
     needs: quality
+    # On main the Docs workflow builds and deploys it, so this only guards PRs.
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
