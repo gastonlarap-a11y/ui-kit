@@ -24,11 +24,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      # No `registry-url` on purpose. It makes setup-node write
+      # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` into a temp .npmrc, and
+      # with no token secret that expands to the literal placeholder. npm then
+      # authenticates with a bogus credential instead of exchanging the OIDC token,
+      # and the registry answers 404 rather than 403 — a misleading error that looks
+      # like the package does not exist. Trusted publishing needs no .npmrc entry.
+      # See actions/setup-node#1551 and npm/cli#8976.
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: npm
-          registry-url: https://registry.npmjs.org
 
       # Trusted publishing requires npm >= 11.5.1; pinning avoids relying on
       # whatever version happens to ship with the Node release.
