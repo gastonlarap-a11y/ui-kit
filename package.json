@@ -59,7 +59,7 @@
     "attw": "attw --pack .",
     "publint": "publint --strict",
     "changeset": "changeset",
-    "changeset:version": "changeset version && npm install --package-lock-only",
+    "changeset:version": "changeset version && node scripts/sync-lock-version.mjs",
     "release": "changeset publish",
     "prepack": "npm run build"
   },
