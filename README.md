@@ -64,15 +64,19 @@ Both axes are plain HTML attributes, so they work in Server Components:
 | `data-theme`   | `blue` (default), `green`, `purple`         |
 | `class="dark"` | opts the subtree into the dark color scheme |
 
-Every token declares both scheme values at once through `light-dark()`, so either axis
-can also be scoped to a **subtree** instead of the whole document — a sidebar or a
-preview pane can carry its own brand or its own color scheme:
+Either axis can also be scoped to a **subtree** instead of the whole document, so a
+sidebar or a preview pane can carry its own brand or its own color scheme:
 
 ```tsx
-<div data-theme="purple" className="dark">
-  <Button>Scoped to this subtree only</Button>
+<div className="dark">
+  <div data-theme="purple">
+    <Button>Scoped to this subtree only</Button>
+  </div>
 </div>
 ```
+
+Put `data-theme` on the `.dark` element or anywhere inside it — that is the nesting
+the tokens are written for.
 
 All six brand/scheme combinations are contrast-checked against WCAG AA on every test run.
 

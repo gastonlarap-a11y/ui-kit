@@ -91,7 +91,10 @@ export const ThemeMatrix: Story = {
     <div className="flex flex-col gap-3">
       {(["light", "dark"] as const).map((scheme) => (
         <div key={scheme} className={scheme === "dark" ? "dark" : undefined}>
-          <div className="flex flex-wrap items-center gap-3 rounded-lg bg-canvas p-4">
+          <div
+            data-testid={`row-${scheme}`}
+            className="flex flex-wrap items-center gap-3 rounded-lg bg-canvas p-4"
+          >
             {BRANDS.map((brand) => (
               <div
                 key={brand}
@@ -127,6 +130,29 @@ export const ThemeMatrix: Story = {
     await expect(
       getComputedStyle(light[0] as HTMLElement).backgroundColor,
     ).not.toBe(getComputedStyle(light[2] as HTMLElement).backgroundColor);
+
+    // The neutrals must flip too, not just the accents. Checking only the accent
+    // hid a real bug: the accents are declared on [data-theme], which re-resolves
+    // inside a nested `.dark`, while the neutrals were declared on :root alone and
+    // stayed light forever.
+    const lightCanvas = getComputedStyle(
+      canvas.getByTestId("row-light"),
+    ).backgroundColor;
+    const darkCanvas = getComputedStyle(
+      canvas.getByTestId("row-dark"),
+    ).backgroundColor;
+    await expect(lightCanvas).not.toBe(darkCanvas);
+
+    // Outline buttons read their border and text from the neutral tokens.
+    const lightOutline = canvas.getAllByRole("button", {
+      name: "blue",
+    })[1] as HTMLElement;
+    const darkOutline = canvas.getAllByRole("button", {
+      name: "blue",
+    })[3] as HTMLElement;
+    await expect(getComputedStyle(lightOutline).color).not.toBe(
+      getComputedStyle(darkOutline).color,
+    );
   },
 };
 
