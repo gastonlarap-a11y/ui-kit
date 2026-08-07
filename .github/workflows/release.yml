@@ -1,8 +1,16 @@
 name: Release
 
+# Only when something publishable changed. Docs-, config- and workflow-only commits
+# cannot produce a release, so there is nothing for changesets to do.
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - ".changeset/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
 
 concurrency:
   group: release
