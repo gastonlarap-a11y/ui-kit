@@ -1,0 +1,19 @@
+/**
+ * Source of `dist/styles.css`: the precompiled fallback for consumers that do NOT
+ * use Tailwind. Consumers that do use Tailwind v4 should instead import
+ * `@galarap/ui/tokens.css` and add `@source` pointing at this package, so their own
+ * build emits only the utilities they actually render.
+ *
+ * Preflight is deliberately excluded — a component library must not reset the
+ * host application's base styles.
+ */
+
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@import "./tokens.css";
+
+/* Emit utilities for every class this package actually renders. */
+@source "../";

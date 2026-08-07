@@ -1,0 +1,6 @@
+/* Storybook-only stylesheet: the full Tailwind build plus our tokens, so stories
+   render with exactly the utilities a Tailwind consumer would generate. */
+@import "tailwindcss";
+@import "../src/styles/tokens.css";
+
+@source "../src";

@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  # Required for npm trusted publishing: npm exchanges this OIDC token for a
+  # short-lived credential and attaches provenance. No long-lived npm token exists.
+  id-token: write
+
+jobs:
+  release:
+    name: Version or publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing requires npm >= 11.5.1; pinning avoids relying on
+      # whatever version happens to ship with the Node release.
+      - run: npm install -g npm@latest
+
+      - run: npm ci
+
+      # Opens (or updates) a "Version Packages" PR while changesets are pending, and
+      # publishes once that PR is merged.
+      - uses: changesets/action@v1
+        with:
+          version: npm run changeset:version
+          publish: npm run release
+          commit: "chore(release): version packages"
+          title: "chore(release): version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

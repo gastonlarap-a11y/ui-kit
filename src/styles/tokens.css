@@ -1,0 +1,116 @@
+/**
+ * Public token entrypoint, shipped verbatim as `@galarap/ui/tokens.css`.
+ *
+ * It is deliberately NOT compiled: it carries `@theme` blocks that the consumer's own
+ * Tailwind v4 build has to process, which is what exposes the tokens as utilities
+ * (`bg-surface`, `text-fg-muted`, ...) inside the consuming app as well.
+ *
+ * Two independent axes:
+ *
+ *   data-theme="blue|green|purple"  picks the brand palette
+ *   class="dark"                    picks the color scheme
+ *
+ * Every token declares both scheme values at once via `light-dark()`, driven by the
+ * `color-scheme` property. That is what lets a brand be applied to any subtree, not
+ * just to <html>: an indirection like `--ui-accent: var(--brand-accent)` would be
+ * resolved once at :root and then inherited already-resolved, so a nested
+ * `[data-theme]` would have no effect. `light-dark()` has no such problem.
+ *
+ * Contrast: every foreground/background pair below is verified against WCAG AA
+ * (4.5:1). Lightness varies per hue on purpose — equal lightness across hues does
+ * NOT give equal contrast, so green sits darker than blue or purple.
+ */
+
+/* `inline` keeps the utilities pointing at the custom properties instead of inlining
+   their values at build time — that is what makes runtime theme switching work. */
+@theme inline {
+  --color-canvas: var(--ui-canvas);
+  --color-surface: var(--ui-surface);
+  --color-fg: var(--ui-fg);
+  --color-fg-muted: var(--ui-fg-muted);
+  --color-muted: var(--ui-muted);
+  --color-muted-fg: var(--ui-muted-fg);
+  --color-border: var(--ui-border);
+  --color-ring: var(--ui-ring);
+
+  --color-accent: var(--ui-accent);
+  --color-accent-hover: var(--ui-accent-hover);
+  --color-accent-fg: var(--ui-accent-fg);
+
+  --color-danger: var(--ui-danger);
+  --color-danger-fg: var(--ui-danger-fg);
+  --color-success: var(--ui-success);
+  --color-success-fg: var(--ui-success-fg);
+  --color-warning: var(--ui-warning);
+  --color-warning-fg: var(--ui-warning-fg);
+
+  --radius-sm: var(--ui-radius-sm);
+  --radius-md: var(--ui-radius-md);
+  --radius-lg: var(--ui-radius-lg);
+}
+
+/* ---------------------------------------------------------------------------
+   Color scheme
+   --------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  --ui-canvas: light-dark(oklch(1 0 0), oklch(0.141 0.005 285));
+  --ui-surface: light-dark(oklch(1 0 0), oklch(0.21 0.006 286));
+  --ui-fg: light-dark(oklch(0.21 0.006 286), oklch(0.985 0 0));
+  --ui-fg-muted: light-dark(oklch(0.44 0.017 286), oklch(0.71 0.015 286));
+  --ui-muted: light-dark(oklch(0.967 0.001 286), oklch(0.274 0.006 286));
+  /* 5.02:1 on --ui-muted (light) · 5.77:1 (dark) */
+  --ui-muted-fg: light-dark(oklch(0.52 0.016 286), oklch(0.71 0.015 286));
+  --ui-border: light-dark(oklch(0.92 0.004 286), oklch(1 0 0 / 12%));
+
+  /* Brand accents are dark in light mode and bright in dark mode, so the ink on
+     top of them flips the other way. */
+  --ui-accent-fg: light-dark(oklch(0.985 0 0), oklch(0.21 0.006 286));
+
+  /* 5.20:1 · 5.65:1 */
+  --ui-danger: light-dark(oklch(0.55 0.22 27), oklch(0.68 0.19 27));
+  --ui-danger-fg: light-dark(oklch(0.985 0 0), oklch(0.21 0.006 286));
+  /* 4.85:1 · 7.59:1 */
+  --ui-success: light-dark(oklch(0.52 0.14 156), oklch(0.72 0.14 156));
+  --ui-success-fg: light-dark(oklch(0.985 0 0), oklch(0.21 0.006 286));
+  /* 7.79:1 · 9.31:1 — both against ink */
+  --ui-warning: light-dark(oklch(0.75 0.16 76), oklch(0.8 0.15 76));
+  --ui-warning-fg: oklch(0.21 0.006 286);
+
+  --ui-radius-sm: 0.375rem;
+  --ui-radius-md: 0.5rem;
+  --ui-radius-lg: 0.75rem;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* ---------------------------------------------------------------------------
+   Brand palettes. Declared on :root as well so the default needs no attribute,
+   and repeated per selector so they can be scoped to any subtree.
+   --------------------------------------------------------------------------- */
+
+:root,
+[data-theme="blue"] {
+  /* 5.20:1 · 6.59:1 */
+  --ui-accent: light-dark(oklch(0.53 0.2 258), oklch(0.7 0.15 258));
+  --ui-accent-hover: light-dark(oklch(0.46 0.19 258), oklch(0.76 0.13 258));
+  --ui-ring: var(--ui-accent);
+}
+
+[data-theme="green"] {
+  /* 4.85:1 · 7.59:1 */
+  --ui-accent: light-dark(oklch(0.52 0.14 156), oklch(0.72 0.14 156));
+  --ui-accent-hover: light-dark(oklch(0.45 0.13 156), oklch(0.78 0.13 156));
+  --ui-ring: var(--ui-accent);
+}
+
+[data-theme="purple"] {
+  /* 5.67:1 · 6.74:1 */
+  --ui-accent: light-dark(oklch(0.53 0.22 302), oklch(0.72 0.16 302));
+  --ui-accent-hover: light-dark(oklch(0.46 0.21 302), oklch(0.78 0.14 302));
+  --ui-ring: var(--ui-accent);
+}

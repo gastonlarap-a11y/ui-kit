@@ -1,0 +1,14 @@
+node_modules
+dist
+storybook-static
+coverage
+*.tgz
+
+.DS_Store
+*.log
+.eslintcache
+
+.vercel
+.env
+.env.*
+!.env.example

@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+
+    /* nodenext enforces explicit `.js` extensions on relative imports. That is what
+       keeps the `tsup --no-bundle` output valid ESM instead of bundler-only output. */
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "declaration": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  /* `.storybook` is spelled out with globs on purpose: a bare directory entry does
+     not match dot-prefixed folders, which silently left it out of the program. */
+  "include": [
+    "src",
+    "scripts",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "*.config.ts",
+    "*.config.mjs"
+  ]
+}
