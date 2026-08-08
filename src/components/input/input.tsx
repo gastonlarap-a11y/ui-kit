@@ -6,8 +6,9 @@ import { tv } from "tailwind-variants";
 
 export const inputVariants = tv({
   base: [
-    "flex h-10 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-fg",
+    "flex h-9 w-full rounded-md border border-border bg-surface px-3 text-sm text-fg shadow-sm",
     "placeholder:text-muted-fg",
+    "transition-[border-color,box-shadow] duration-150 ease-out",
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     "disabled:cursor-not-allowed disabled:opacity-50",
     /* Base UI drives these from the surrounding Field's validation state. */

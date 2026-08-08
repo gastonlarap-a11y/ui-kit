@@ -4,21 +4,24 @@ import { tv, type VariantProps } from "tailwind-variants";
 export const buttonVariants = tv({
   base: [
     "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap",
-    "font-medium transition-colors",
+    "font-medium transition-[color,background-color,box-shadow,translate] duration-150 ease-out",
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+    /* A button that visibly gives under the pointer feels connected to the click. */
+    "active:translate-y-px",
     "disabled:pointer-events-none disabled:opacity-50",
   ],
   variants: {
     variant: {
-      solid: "bg-accent text-accent-fg hover:bg-accent-hover",
-      outline: "border border-border bg-surface text-fg hover:bg-muted",
+      solid: "bg-accent text-accent-fg shadow-sm hover:bg-accent-hover",
+      outline:
+        "border border-border bg-surface text-fg shadow-sm hover:bg-muted",
       ghost: "text-fg hover:bg-muted",
-      danger: "bg-danger text-danger-fg hover:opacity-90",
+      danger: "bg-danger text-danger-fg shadow-sm hover:opacity-90",
     },
     size: {
-      sm: "h-8 rounded-sm px-3 text-sm",
-      md: "h-10 rounded-md px-4 text-sm",
-      lg: "h-11 rounded-md px-6 text-base",
+      sm: "h-8 rounded-md px-3 text-xs",
+      md: "h-9 rounded-md px-4 text-sm",
+      lg: "h-11 rounded-lg px-6 text-base",
     },
   },
   defaultVariants: {

@@ -32,7 +32,7 @@ export function NumberField({ className, ...props }: NumberFieldProps) {
       <BaseNumberField.Group
         data-slot="number-field-group"
         className={cn(
-          "flex h-10 w-full items-center overflow-hidden rounded-md border border-border bg-surface",
+          "flex h-9 w-full items-center overflow-hidden rounded-md border border-border bg-surface shadow-sm",
           "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring",
           "data-disabled:cursor-not-allowed data-disabled:opacity-50",
         )}
@@ -63,8 +63,8 @@ export function NumberField({ className, ...props }: NumberFieldProps) {
 /** Both steppers are identical apart from which side carries the divider. */
 function stepperClasses(side: string): string {
   return cn(
-    "flex h-full w-10 shrink-0 items-center justify-center border-border text-fg-muted",
-    "transition-colors hover:bg-muted hover:text-fg",
+    "flex h-full w-9 shrink-0 items-center justify-center border-border text-fg-muted",
+    "transition-colors duration-150 ease-out hover:bg-muted hover:text-fg",
     "disabled:pointer-events-none disabled:opacity-50",
     side,
   );

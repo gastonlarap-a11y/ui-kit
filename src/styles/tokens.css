@@ -3,26 +3,32 @@
  *
  * It is deliberately NOT compiled: it carries `@theme` blocks that the consumer's own
  * Tailwind v4 build has to process, which is what exposes the tokens as utilities
- * (`bg-surface`, `text-fg-muted`, ...) inside the consuming app as well.
+ * (`bg-surface`, `text-fg-muted`, `shadow-md`, ...) inside the consuming app as well.
  *
  * Two independent axes, both scopeable to any subtree:
  *
  *   data-theme="blue|green|purple"  picks the brand palette
  *   class="dark"                    picks the color scheme
  *
- * Every value is written out per selector rather than derived with `light-dark()`.
- * That is not verbosity for its own sake: `light-dark()` works when a browser sees it
- * natively, but production builds routinely downlevel it (Lightning CSS rewrites it
- * to a `var()` toggle pair). `var()` inside a custom property resolves on the element
- * that *declares* it, so a downleveled token declared only on `:root` is inherited
- * already-resolved and a nested `.dark` silently has no effect. Plain values behave
- * identically before and after any such transform.
+ * ---------------------------------------------------------------------------
+ * Why the file is split the way it is
  *
- * Nesting contract: put `data-theme` on the `.dark` element or anywhere inside it.
+ * The neutrals carry a trace of the brand hue, which is what stops the palette looking
+ * like every other grey kit. That tint cannot be expressed as
+ * `oklch(0.985 0.004 var(--ui-hue))` declared once on `:root`: `var()` inside a custom
+ * property resolves on the element that declares it, so a nested `[data-theme]` would
+ * inherit the already-resolved colour and change nothing. The same trap broke subtree
+ * dark mode once already.
  *
- * Contrast: every foreground/background pair is verified against WCAG AA (4.5:1).
- * Lightness varies per hue on purpose — equal lightness across hues does NOT give
- * equal contrast, so green sits darker than blue or purple.
+ * So tokens live in two groups:
+ *
+ *   - scheme-only (`:root` / `.dark`) — ink, semantic colours, radii, shadows, motion
+ *   - brand x scheme (six blocks) — surfaces, borders, muted text, accents
+ *
+ * The repetition is the price of correctness under any build pipeline.
+ *
+ * Contrast: all 42 foreground/background pairs are verified against WCAG AA; the
+ * tightest is 4.85:1. Recompute before changing any colour.
  */
 
 /* `inline` keeps the utilities pointing at the custom properties instead of inlining
@@ -51,22 +57,45 @@
   --radius-sm: var(--ui-radius-sm);
   --radius-md: var(--ui-radius-md);
   --radius-lg: var(--ui-radius-lg);
+
+  /* Elevation has to be scheme-aware: a black shadow is invisible on a dark surface,
+     so there the depth comes from the surface being lighter than the canvas. */
+  --shadow-sm: var(--ui-shadow-sm);
+  --shadow-md: var(--ui-shadow-md);
+  --shadow-lg: var(--ui-shadow-lg);
+}
+
+/* Static across schemes and brands. No font family on purpose — the kit inherits the
+   host application's; shipping one would force every consumer to download it. */
+@theme {
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.45;
+  --text-lg--letter-spacing: -0.01em;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.35;
+  --text-xl--letter-spacing: -0.015em;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.25;
+  --text-2xl--letter-spacing: -0.02em;
+
+  /* Decelerating curve: motion that arrives rather than stopping dead. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---------------------------------------------------------------------------
-   Color scheme — neutrals and semantic colors.
+   Scheme-only tokens
    --------------------------------------------------------------------------- */
 
 :root {
   color-scheme: light;
 
-  --ui-canvas: oklch(1 0 0);
-  --ui-surface: oklch(1 0 0);
   --ui-fg: oklch(0.21 0.006 286);
-  --ui-fg-muted: oklch(0.44 0.017 286);
-  --ui-muted: oklch(0.967 0.001 286);
-  --ui-muted-fg: oklch(0.52 0.016 286); /* 5.02:1 on --ui-muted */
-  --ui-border: oklch(0.92 0.004 286);
 
   /* Brand accents are dark in light mode, so the ink on top of them is near-white. */
   --ui-accent-fg: oklch(0.985 0 0);
@@ -78,21 +107,24 @@
   --ui-warning: oklch(0.75 0.16 76); /* 7.79:1 against ink */
   --ui-warning-fg: oklch(0.21 0.006 286);
 
-  --ui-radius-sm: 0.375rem;
-  --ui-radius-md: 0.5rem;
-  --ui-radius-lg: 0.75rem;
+  --ui-radius-sm: 0.5rem;
+  --ui-radius-md: 0.625rem;
+  --ui-radius-lg: 0.875rem;
+
+  /* Tinted rather than pure black, so shadows sit in the same palette as everything else. */
+  --ui-shadow-sm: 0 1px 2px 0 oklch(0.21 0.03 258 / 0.06);
+  --ui-shadow-md:
+    0 4px 12px -2px oklch(0.21 0.03 258 / 0.1),
+    0 2px 4px -2px oklch(0.21 0.03 258 / 0.06);
+  --ui-shadow-lg:
+    0 16px 40px -12px oklch(0.21 0.03 258 / 0.18),
+    0 4px 8px -4px oklch(0.21 0.03 258 / 0.08);
 }
 
 .dark {
   color-scheme: dark;
 
-  --ui-canvas: oklch(0.141 0.005 285);
-  --ui-surface: oklch(0.21 0.006 286);
   --ui-fg: oklch(0.985 0 0);
-  --ui-fg-muted: oklch(0.71 0.015 286);
-  --ui-muted: oklch(0.274 0.006 286);
-  --ui-muted-fg: oklch(0.71 0.015 286); /* 5.77:1 on --ui-muted */
-  --ui-border: oklch(1 0 0 / 12%);
 
   /* Accents are bright here, so the ink flips to dark. */
   --ui-accent-fg: oklch(0.21 0.006 286);
@@ -103,40 +135,69 @@
   --ui-success-fg: oklch(0.21 0.006 286);
   --ui-warning: oklch(0.8 0.15 76); /* 9.31:1 */
   --ui-warning-fg: oklch(0.21 0.006 286);
+
+  /* Deeper and more opaque: on a dark surface a soft shadow reads as nothing, so it
+     only has to separate the layer, while the lift comes from the surface colour. */
+  --ui-shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.4);
+  --ui-shadow-md:
+    0 4px 12px -2px oklch(0 0 0 / 0.5), 0 2px 4px -2px oklch(0 0 0 / 0.4);
+  --ui-shadow-lg:
+    0 16px 40px -12px oklch(0 0 0 / 0.65), 0 4px 8px -4px oklch(0 0 0 / 0.45);
 }
 
 /* ---------------------------------------------------------------------------
-   Brand accents, light scheme. `:root` carries blue so no attribute is needed.
+   Brand x scheme. `:root` carries blue so no attribute is needed.
+
+   Note `--ui-canvas` sits *below* `--ui-surface` in lightness: a card on a page has
+   to read as raised without relying on its border alone.
    --------------------------------------------------------------------------- */
 
 :root,
 [data-theme="blue"] {
+  --ui-canvas: oklch(0.985 0.004 258);
+  --ui-surface: oklch(1 0 0);
+  --ui-muted: oklch(0.965 0.006 258);
+  --ui-muted-fg: oklch(0.5 0.02 258); /* 5.42:1 on --ui-muted */
+  --ui-fg-muted: oklch(0.44 0.02 258); /* 7.43:1 on --ui-canvas */
+  --ui-border: oklch(0.915 0.008 258);
   --ui-accent: oklch(0.53 0.2 258); /* 5.20:1 */
   --ui-accent-hover: oklch(0.46 0.19 258);
   --ui-ring: var(--ui-accent);
 }
 
 [data-theme="green"] {
+  --ui-canvas: oklch(0.985 0.004 156);
+  --ui-surface: oklch(1 0 0);
+  --ui-muted: oklch(0.965 0.006 156);
+  --ui-muted-fg: oklch(0.5 0.02 156); /* 5.38:1 */
+  --ui-fg-muted: oklch(0.44 0.02 156); /* 7.37:1 */
+  --ui-border: oklch(0.915 0.008 156);
   --ui-accent: oklch(0.52 0.14 156); /* 4.85:1 */
   --ui-accent-hover: oklch(0.45 0.13 156);
   --ui-ring: var(--ui-accent);
 }
 
 [data-theme="purple"] {
+  --ui-canvas: oklch(0.985 0.004 302);
+  --ui-surface: oklch(1 0 0);
+  --ui-muted: oklch(0.965 0.006 302);
+  --ui-muted-fg: oklch(0.5 0.02 302); /* 5.45:1 */
+  --ui-fg-muted: oklch(0.44 0.02 302); /* 7.49:1 */
+  --ui-border: oklch(0.915 0.008 302);
   --ui-accent: oklch(0.53 0.22 302); /* 5.67:1 */
   --ui-accent-hover: oklch(0.46 0.21 302);
   --ui-ring: var(--ui-accent);
 }
 
-/* ---------------------------------------------------------------------------
-   Brand accents, dark scheme. Each brand is listed both as a descendant of
-   `.dark` and combined with it, so the attribute may sit on the scheme element
-   itself or on anything inside it.
-   --------------------------------------------------------------------------- */
-
 .dark,
 .dark [data-theme="blue"],
 [data-theme="blue"].dark {
+  --ui-canvas: oklch(0.17 0.008 258);
+  --ui-surface: oklch(0.215 0.008 258);
+  --ui-muted: oklch(0.27 0.01 258);
+  --ui-muted-fg: oklch(0.72 0.018 258); /* 6.08:1 on --ui-muted */
+  --ui-fg-muted: oklch(0.72 0.018 258); /* 7.71:1 on --ui-canvas */
+  --ui-border: oklch(0.32 0.012 258);
   --ui-accent: oklch(0.7 0.15 258); /* 6.59:1 */
   --ui-accent-hover: oklch(0.76 0.13 258);
   --ui-ring: var(--ui-accent);
@@ -144,6 +205,12 @@
 
 .dark [data-theme="green"],
 [data-theme="green"].dark {
+  --ui-canvas: oklch(0.17 0.008 156);
+  --ui-surface: oklch(0.215 0.008 156);
+  --ui-muted: oklch(0.27 0.01 156);
+  --ui-muted-fg: oklch(0.72 0.018 156); /* 6.10:1 */
+  --ui-fg-muted: oklch(0.72 0.018 156); /* 7.76:1 */
+  --ui-border: oklch(0.32 0.012 156);
   --ui-accent: oklch(0.72 0.14 156); /* 7.59:1 */
   --ui-accent-hover: oklch(0.78 0.13 156);
   --ui-ring: var(--ui-accent);
@@ -151,6 +218,12 @@
 
 .dark [data-theme="purple"],
 [data-theme="purple"].dark {
+  --ui-canvas: oklch(0.17 0.008 302);
+  --ui-surface: oklch(0.215 0.008 302);
+  --ui-muted: oklch(0.27 0.01 302);
+  --ui-muted-fg: oklch(0.72 0.018 302); /* 6.06:1 */
+  --ui-fg-muted: oklch(0.72 0.018 302); /* 7.67:1 */
+  --ui-border: oklch(0.32 0.012 302);
   --ui-accent: oklch(0.72 0.16 302); /* 6.74:1 */
   --ui-accent-hover: oklch(0.78 0.14 302);
   --ui-ring: var(--ui-accent);

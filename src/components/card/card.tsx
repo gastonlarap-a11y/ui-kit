@@ -24,7 +24,7 @@ export function Card({ className, ...props }: DivProps) {
     <div
       data-slot="card"
       className={cn(
-        "flex flex-col gap-4 rounded-lg border border-border bg-surface p-6 text-fg",
+        "flex flex-col gap-4 rounded-lg border border-border bg-surface p-6 text-fg shadow-sm",
         className,
       )}
       {...props}
