@@ -1,0 +1,16 @@
+export {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxContent,
+  ComboboxGroup,
+  ComboboxGroupLabel,
+  ComboboxInput,
+  ComboboxItem,
+  type ComboboxChipProps,
+  type ComboboxChipsProps,
+  type ComboboxContentProps,
+  type ComboboxInputProps,
+  type ComboboxItemProps,
+  type ComboboxProps,
+} from "./combobox.js";
