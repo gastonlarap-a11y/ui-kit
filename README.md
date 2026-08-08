@@ -78,19 +78,43 @@ sidebar or a preview pane can carry its own brand or its own color scheme:
 Put `data-theme` on the `.dark` element or anywhere inside it — that is the nesting
 the tokens are written for.
 
-All six brand/scheme combinations are contrast-checked against WCAG AA on every test run.
+One caveat worth knowing before you rely on it: components that render in a portal —
+`Dialog`, `AlertDialog`, `Drawer`, `Select`, `Combobox`, `Autocomplete`, `Popover`,
+`Tooltip`, `DropdownMenu` and `ConfirmProvider` — are attached to `<body>`, so they
+resolve the theme on `<html>` rather than the subtree their trigger sits in. Scoped
+theming applies to in-place components; popups follow the document.
+
+23 of the 42 components are rendered in all six brand/scheme combinations on every test
+run, so a contrast regression in any of them fails CI. The rest are audited with axe in
+the default `blue` / light theme.
 
 ## Development
 
+Requires Node 24 (see `.nvmrc`); the published package supports Node ≥ 20.19.
+
 ```bash
-npm run build          # tsup (no-bundle) + tsc declarations + Tailwind CLI
-npm run test           # stories as interaction tests + axe, in a real browser
-npm run storybook
+npm ci
+```
+
+```bash
+npm run build           # tsup (no-bundle) + tsc declarations + Tailwind CLI
+npm run test            # stories as interaction tests + axe, in a real browser
+npm run storybook       # docs site on :6006
+npm run build-storybook # what the Pages deployment publishes
 npm run typecheck
 npm run lint
-npm run pack-check     # build, then validate the real tarball with publint + attw
-npm run check:tarball  # assert nothing but dist/ ever ships
+npm run format          # prettier, incl. Tailwind class sorting inside tv() and cn()
+npm run changeset       # required for any change under src/
+npm run pack-check      # build, then validate the real tarball with publint + attw
+npm run check:tarball   # assert nothing but dist/ ever ships
 ```
+
+### Project structure
+
+- `src/components/<name>/` — component, its stories and a one-line barrel
+- `src/lib/` — internal helpers; only `cn` is public
+- `src/styles/tokens.css` — the public token entrypoint, shipped uncompiled
+- `.storybook/` — docs-only helpers, kept out of `src/` so they never ship
 
 `pack-check` and `check:tarball` are the gates that matter: they pack the package exactly
 as npm would, verify module and type resolution against that artifact, and fail if
