@@ -1,6 +1,8 @@
 import type { ButtonHTMLAttributes, Ref } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
+import { SpinnerIcon } from "../../lib/icons.js";
+
 export const buttonVariants = tv({
   base: [
     "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap",
@@ -34,6 +36,13 @@ export interface ButtonProps
   extends
     ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  /**
+   * Shows a spinner and makes the button inert while an action is in flight.
+   *
+   * The label stays visible on purpose: replacing it with a spinner alone loses what the
+   * button was going to do, and the button would resize under the pointer.
+   */
+  loading?: boolean;
   ref?: Ref<HTMLButtonElement>;
 }
 
@@ -50,6 +59,7 @@ export interface ButtonProps
  * @example
  * <Button onClick={save}>Save changes</Button>
  * <Button variant="danger" size="sm">Delete</Button>
+ * <Button loading={saving}>Save changes</Button>
  * <a className={buttonVariants({ variant: "outline" })} href="/docs">Docs</a>
  */
 export function Button({
@@ -57,6 +67,9 @@ export function Button({
   variant,
   size,
   type = "button",
+  loading = false,
+  disabled,
+  children,
   ...props
 }: ButtonProps) {
   return (
@@ -64,7 +77,19 @@ export function Button({
       type={type}
       data-slot="button"
       className={buttonVariants({ variant, size, className })}
+      /* Inert while loading, so a second click cannot fire the action twice. */
+      disabled={disabled || loading}
+      /* Announces the wait without stealing focus, unlike a live region would. */
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {loading ? (
+        <SpinnerIcon
+          data-slot="button-spinner"
+          className="size-4 shrink-0 animate-spin"
+        />
+      ) : null}
+      {children}
+    </button>
   );
 }

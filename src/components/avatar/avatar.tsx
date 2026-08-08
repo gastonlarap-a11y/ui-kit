@@ -1,7 +1,12 @@
 "use client";
 
 import { Avatar as BaseAvatar } from "@base-ui/react/avatar";
-import type { ComponentProps } from "react";
+import {
+  Children,
+  type ComponentProps,
+  type HTMLAttributes,
+  type Ref,
+} from "react";
 
 import { cn } from "../../lib/cn.js";
 
@@ -43,6 +48,66 @@ export function AvatarImage({
       className={cn("size-full object-cover", className)}
       {...props}
     />
+  );
+}
+
+export interface AvatarGroupProps extends HTMLAttributes<HTMLDivElement> {
+  /**
+   * How many avatars to show before collapsing the rest into a count. Everything beyond
+   * this is replaced by a `+N` badge.
+   */
+  max?: number;
+  ref?: Ref<HTMLDivElement>;
+}
+
+/**
+ * A row of overlapping avatars with the overflow collapsed into a count.
+ *
+ * The stack is decorative: it is announced as a single "N people" label rather than as a
+ * list of images, because a screen reader reading eight avatars in a row tells you
+ * nothing useful. Give it an `aria-label` naming the group.
+ *
+ * @example
+ * <AvatarGroup max={3} aria-label="Project members">
+ *   {members.map((m) => (
+ *     <Avatar key={m.id}>
+ *       <AvatarImage src={m.avatarUrl} />
+ *       <AvatarFallback>{m.initials}</AvatarFallback>
+ *     </Avatar>
+ *   ))}
+ * </AvatarGroup>
+ */
+export function AvatarGroup({
+  className,
+  children,
+  max = 4,
+  ...props
+}: AvatarGroupProps) {
+  const avatars = Children.toArray(children);
+  const visible = avatars.slice(0, max);
+  const overflow = avatars.length - visible.length;
+
+  return (
+    <div
+      data-slot="avatar-group"
+      className={cn(
+        /* The ring is what separates one avatar from the one it overlaps; without it
+           the stack reads as a single blob at small sizes. */
+        "flex items-center -space-x-2 [&_[data-slot=avatar]]:ring-2 [&_[data-slot=avatar]]:ring-surface",
+        className,
+      )}
+      {...props}
+    >
+      {visible}
+      {overflow > 0 ? (
+        <span
+          data-slot="avatar-group-overflow"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-fg ring-2 ring-surface"
+        >
+          +{overflow}
+        </span>
+      ) : null}
+    </div>
   );
 }
 

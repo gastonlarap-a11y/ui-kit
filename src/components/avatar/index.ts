@@ -1,4 +1,6 @@
 export {
+  AvatarGroup,
+  type AvatarGroupProps,
   Avatar,
   AvatarFallback,
   AvatarImage,

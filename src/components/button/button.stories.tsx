@@ -28,6 +28,11 @@ const meta = {
       ["sm", "md", "lg"],
       "Control height. `md` is the default; `sm` suits dense toolbars and table rows.",
     ),
+    loading: {
+      description:
+        "Shows a spinner and makes the button inert while an action is in flight. The " +
+        "label stays visible so the button neither resizes nor loses its meaning.",
+    },
     className: classNameArgType,
   },
 } satisfies Meta<typeof Button>;
@@ -70,6 +75,39 @@ export const Sizes: Story = {
       </Button>
     </div>
   ),
+};
+
+export const Loading: Story = {
+  args: { loading: true },
+};
+
+/** Behaviour check, not a usage example — kept out of the docs page. */
+export const LoadingIsInertAndAnnounced: Story = {
+  tags: ["!autodocs"],
+  args: { loading: true, onClick: fn() },
+  play: async ({ canvasElement, args }) => {
+    const button = within(canvasElement).getByRole("button");
+
+    await expect(button).toHaveAttribute("aria-busy", "true");
+    await expect(button).toBeDisabled();
+
+    // A second click must not fire the action again while it is in flight.
+    await userEvent.click(button, { pointerEventsCheck: 0 });
+    await expect(args.onClick).not.toHaveBeenCalled();
+
+    // The label stays: a spinner alone loses what the button was going to do.
+    await expect(button).toHaveTextContent("Save changes");
+  },
+};
+
+/** Behaviour check, not a usage example — kept out of the docs page. */
+export const ExplicitlyEnabledStillLoadsAsInert: Story = {
+  tags: ["!autodocs"],
+  args: { loading: true, disabled: false },
+  play: async ({ canvasElement }) => {
+    // `disabled={false}` must not re-enable a loading button.
+    await expect(within(canvasElement).getByRole("button")).toBeDisabled();
+  },
 };
 
 export const Disabled: Story = {
