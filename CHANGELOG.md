@@ -1,5 +1,145 @@
 # @galarap/ui
 
+## 0.4.0
+
+### Minor Changes
+
+- 903824c: Give the kit a colour and motion system: four new tokens, and the accessibility fix that
+  motivated them.
+
+  **`border-strong` — the edge of a control.** Every input, textarea, checkbox, radio, switch
+  track, select trigger, OTP box, number-field perimeter, typeahead input group and `outline`
+  button drew its boundary with `--ui-border`, which measures **1.29:1** against
+  `--ui-surface` in light and 1.38:1 in dark. WCAG 2.2 SC 1.4.11 asks 3:1 of anything that
+  identifies a component, and here the border is the only thing that does the identifying:
+  `--ui-surface` and `--ui-canvas` are 1.04:1 apart, so the fill of an input does not
+  distinguish it from the page behind it. Those controls now use `--ui-border-strong`, which
+  measures **3.08:1 to 3.52:1** against both backgrounds across all six brand/scheme
+  combinations. The tightest pair is `dark`/`purple` on surface at 3.14:1.
+
+  `--ui-border` is unchanged and stays where it belongs — separators, table rules, the card
+  outline, popup edges, container borders. Darkening one token instead of adding a second
+  would have hit `Separator`, which paints nothing else, and turned `NumberField` into a
+  visible three-cell grid.
+
+  **`surface-overlay` — a third elevation tier.** Dialogs, drawers, popovers, menus, select
+  lists, toasts and the typeahead popups all reused `--ui-surface`, the same token as `Card`.
+  In dark mode that made a popup exactly the colour of the card behind it, with a shadow that
+  reads as almost nothing against a dark background. Portalled surfaces now sit one step
+  lighter. In light mode both are white, as before, and the shadow does the separating.
+
+  **`scrim` — the veil behind a modal.** `Dialog`, `AlertDialog` and `Drawer` hardcoded
+  `bg-black/50`, the only raw colour left anywhere in the kit. It is now a token, tinted in
+  light mode so the page dims into the palette, and denser in dark where a half-opaque veil
+  barely registered.
+
+  **`duration-fast|base|slow` — and `prefers-reduced-motion`.** The 150/200/300ms timings were
+  spread by hand across forty files with no way to override them, so the kit ignored SC 2.3.3
+  entirely. They are tokens now, consumed as `duration-(--ui-duration-base)`, and one media
+  query collapses all three to `1ms` — one millisecond rather than zero, because Base UI
+  unmounts a popup when its transition ends and a zero duration can skip that event. The full
+  test suite passes under `prefers-reduced-motion: reduce`, dialogs and menus included.
+  `ease-out` now applies to overlay transitions too, which previously used the browser
+  default; that is the one motion change you will notice. `Skeleton` stops pulsing under
+  reduced motion — `Button`'s spinner does not, because its movement is the state it reports.
+
+  Every ratio above is measured in a real browser by `Guides/Tokens`, which paints each pair
+  to a one-pixel canvas rather than trusting arithmetic — several accents sit outside the sRGB
+  gamut, so a calculated ratio and a painted one can disagree.
+
+- 903824c: Fix `Input`: a width on a clearable field put the clear button somewhere else.
+
+  `<Input className="w-56" onClear={…} />` narrowed the field to 224px while the wrapper the
+  button was positioned against stayed full width, so the button ended up at the edge of the
+  page. Every class involved was correct on its own; the bug was which element each one
+  landed on.
+
+  `Input` now renders a group around its field the way `Combobox` and `Autocomplete` already
+  do, and the group is what carries the border, height, background and the consumer's
+  `className`. The field inside is transparent and fills it, and the clear button is a flex
+  sibling rather than an absolutely positioned box — so it sits at the field's trailing edge
+  whatever the width, and follows the writing direction without a rule of its own.
+
+  Two things to know if you style `Input` from outside:
+
+  - **`className` reaches the group**, `[data-slot="input-wrapper"]`. That is where a width,
+    a background or a radius now belongs. CSS aimed at `[data-slot="input"]` for the border
+    needs to move; the field itself no longer draws one.
+  - **`className` is a plain string.** It used to accept Base UI's state function because it
+    reached the `<input>`; the group is a `<div>` with no input state to react to.
+
+  `ClearButtonStaysWithTheField` asserts the geometry, since the failure was geometric and no
+  class assertion would have caught it.
+
+- 903824c: Make the kit line up, and work right-to-left.
+
+  **A shared size scale.** `Button` was the only component with a `size`, so anything that
+  had to match it did so by hand: `DataTable` wrote `className="h-8 w-20"` onto a
+  `SelectTrigger` to align it with the `size="sm"` buttons beside it, and `ToolbarButton`
+  measures `h-8` only because that happens to equal `Button` `sm`. `Input`, `Textarea`,
+  `SelectTrigger` and `Toggle` now take `size: "sm" | "md" | "lg"` — 32, 36 and 44 CSS
+  pixels, with `md` identical to what they rendered before. `Guides/Sizing` measures the real
+  boxes on every test run, so the next drift fails instead of being noticed later.
+
+  `Button` `sm` changes with it: its label goes from 12px to 14px, matching every other
+  control at that size. The most visible place is `Pagination`, whose page numbers get
+  bigger.
+
+  `Switch`, `NumberField`, `Checkbox`, `Radio` and `OtpField` deliberately do not take a
+  `size`. Their geometry is derived rather than declared — the switch thumb's travel is
+  computed from its track width, the number field's stepper is square only because it
+  matches its group's height — so a size step there means recomputing, not swapping.
+
+  Note for TypeScript: `<input size>` is a native attribute meaning a width in characters, so
+  `InputProps` omits it. Character width is a `className="w-*"` away and always was.
+
+  **Right-to-left.** The components now use logical CSS — `ps`/`pe`, `inset-s`/`inset-e`,
+  `border-s`/`border-e`, `text-start`/`text-end` — so they follow `dir` with no props of
+  their own. Four things have no logical form in CSS and carry an explicit `rtl:` variant
+  instead: the switch thumb's travel, the toast's entry slide, the pagination chevrons (which
+  mean previous and next, so they mirror) and the avatar stack's overlap.
+
+  This fixes a real bug: `DataTableColumn.align` has always been `"start" | "center" | "end"`,
+  but it resolved to `text-right`/`text-left`, so a column declared `align: "end"` landed on
+  the wrong side of a right-to-left table.
+
+  `Drawer` gains `side="start"` and `side="end"`, which follow the reading direction.
+  `side="left"` and `side="right"` keep meaning the physical edge of the screen — both are
+  useful and they are not the same request.
+
+  `Guides/Direction` renders the affected components in both directions and reads back what
+  the browser computed, so a physical utility slipping back in fails there.
+
+  **Smaller things.** Long menus scroll: `DropdownMenu` had no height cap, so a menu taller
+  than the viewport had no way to reach its last item. Every popup that scrolls now draws a
+  thin scrollbar in the kit's own neutrals instead of the platform's grey slab. `Checkbox`
+  and `Radio` keep their 20px box but grow a 24px pointer target, the size WCAG 2.2 SC 2.5.8
+  asks for — verified by clicking outside the visible box, since axe measures the element and
+  not its pseudo-elements. `DataTable`'s live row count and page-size options use tabular
+  figures, so the line stops twitching as you type in the search box.
+
+  `Select` and `DropdownMenu` now share the popup and row classes that `Combobox` and
+  `Autocomplete` already used; they had drifted into byte-for-byte copies of them. `Dialog`,
+  `Drawer`, `Popover`, `Toast` and `Tooltip` keep their own — their differences are real.
+
+### Patch Changes
+
+- 903824c: Fix `Tabs`: the selected tab had no visible state.
+
+  It was styled on `data-selected`, which Base UI does not set on `Tabs.Tab` — the attribute
+  is `data-active`. Both utilities that expressed selection therefore never matched, so the
+  active tab rendered with a transparent underline and the same `--ui-fg-muted` ink as every
+  other tab. `aria-selected` was correct throughout, which is exactly why it survived: a
+  screen reader announced the right thing while nothing on screen agreed with it, and the
+  existing tests asserted the attribute rather than what it looked like.
+
+  `SelectedTabIsVisiblyDistinct` now asserts the underline is actually painted and that the
+  ink steps up from muted, so the two signals cannot silently disappear again.
+
+  Nothing else in the kit was affected: `data-pressed` on `Toggle`, `data-highlighted` on
+  menu and select items, and `data-panel-open` on the accordion trigger were all checked
+  against Base UI's API reference and are correct.
+
 ## 0.3.0
 
 ### Minor Changes
