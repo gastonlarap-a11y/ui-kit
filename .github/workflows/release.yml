@@ -52,11 +52,18 @@ jobs:
 
       # Opens (or updates) a "Version Packages" PR while changesets are pending, and
       # publishes once that PR is merged.
-      - uses: changesets/action@v1
+      #
+      # Pinned to an exact tag, unlike the `@v7`/`@v6` neighbours above: this action
+      # publishes no moving major ref at all. `v1` was a *branch*, and there is no `v2`
+      # of either kind — `changesets/action@v2` does not resolve and fails the job. Bump
+      # this by hand; do not "tidy" it into a major.
+      #
+      # v2 is what Changesets 3 requires, and it renamed every input to kebab-case.
+      # `github-token` replaces the old `GITHUB_TOKEN` env var and already defaults to
+      # `${{ github.token }}`, so it is left out rather than restated.
+      - uses: changesets/action@v2.1.0
         with:
-          version: npm run changeset:version
-          publish: npm run release
-          commit: "chore(release): version packages"
-          title: "chore(release): version packages"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version-script: npm run changeset:version
+          publish-script: npm run release
+          commit-message: "chore(release): version packages"
+          pr-title: "chore(release): version packages"

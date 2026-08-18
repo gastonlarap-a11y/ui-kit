@@ -20,6 +20,25 @@ npm as `@galarap/ui`, documented as a Storybook site on GitHub Pages.
 - Build: `npm run build` · Docs: `npm run storybook` / `npm run build-storybook`
 - Publish gates: `npm run pack-check` (publint + attw against the real tarball) · `npm run check:tarball`
 
+## TypeScript is installed twice
+
+`tsc` is **7.0.2**, the Go compiler — it runs `typecheck` and `build:types`, and it is 4x
+faster on this repo (1.70s → 0.41s). The bare name `typescript` resolves to a **6.0.2**
+shim, because TS 7.0 exposes no stable programmatic API until 7.1 and `typescript-eslint`,
+`react-docgen-typescript` and `tsup` can only consume TS 6. `tsc6` is that compiler's
+binary, kept as the escape hatch.
+
+Two consequences worth knowing before they surprise you:
+
+- **The editor needs `.vscode/settings.json`.** The shim ships no `lib.*.d.ts`, so an
+  editor pointed at `node_modules/typescript/lib` reports `Cannot find name 'Promise'`
+  everywhere. That file points it at the real library instead; accept the prompt once.
+- **Two checkers coexist.** `lint` and the editor use TS 6, `typecheck` uses TS 7. They
+  agree today — the 91 emitted `.d.ts` files are byte-identical between the two — and
+  `typecheck` is the authority if they ever stop agreeing.
+
+Do not "simplify" this to a single `typescript` dependency until 7.1 lands the API.
+
 ## Rules
 
 - The stories ARE the tests. There is no `*.test.tsx` in this repo and there should not be.
