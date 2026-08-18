@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
+import {
+  expectBrandsDiffer,
+  expectSchemesDiffer,
+  readPerBrand,
+  ThemeMatrixGrid,
+} from "../../../.storybook/theme-matrix.js";
 import { Button } from "../button/button.js";
 import {
   DropdownMenu,
@@ -80,5 +86,55 @@ export const OpensAndNavigatesWithArrowKeys: Story = {
     await waitFor(() =>
       expect(within(document.body).queryByRole("menu")).not.toBeInTheDocument(),
     );
+  },
+};
+
+/**
+ * Triggers only. `DropdownMenuContent` is portalled to `<body>` and follows the theme of
+ * `<html>`, not the subtree its trigger sits in — asserted once for the whole kit by
+ * `PortalledDialogFollowsTheDocumentTheme` in `confirm.stories.tsx`. Opening six menus
+ * at once is not possible either: a menu is modal, so the second would close the first.
+ */
+export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          "    <DropdownMenu>…</DropdownMenu>",
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
+  render: (args) => (
+    <ThemeMatrixGrid>
+      {(brand, scheme) => (
+        <DropdownMenu {...args}>
+          <DropdownMenuTrigger
+            render={<Button variant="outline">{`${scheme} ${brand}`}</Button>}
+          />
+          <DropdownMenuContent>
+            <DropdownMenuItem>Rename</DropdownMenuItem>
+            <DropdownMenuItem>Duplicate</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </ThemeMatrixGrid>
+  ),
+  play: async ({ canvasElement }) => {
+    const triggerIn = (cell: HTMLElement) => within(cell).getByRole("button");
+
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "light", triggerIn, "borderTopColor"),
+    );
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "dark", triggerIn, "borderTopColor"),
+    );
+    await expectSchemesDiffer(canvasElement);
   },
 };

@@ -56,7 +56,7 @@ export function AccordionTrigger({
       <BaseAccordion.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "flex flex-1 cursor-default items-center justify-between gap-4 py-4 text-left text-sm font-medium text-fg",
+          "flex flex-1 cursor-default items-center justify-between gap-4 py-4 text-start text-sm font-medium text-fg",
           "outline-none hover:underline",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           className,
@@ -64,7 +64,7 @@ export function AccordionTrigger({
         {...props}
       >
         {children}
-        <ChevronDownIcon className="size-4 shrink-0 text-fg-muted transition-transform duration-200 data-panel-open:rotate-180" />
+        <ChevronDownIcon className="size-4 shrink-0 text-fg-muted transition-transform duration-(--ui-duration-base) ease-out data-panel-open:rotate-180" />
       </BaseAccordion.Trigger>
     </BaseAccordion.Header>
   );
@@ -80,7 +80,7 @@ export function AccordionPanel({
       data-slot="accordion-panel"
       className={cn(
         "overflow-hidden text-sm text-fg-muted",
-        "h-[var(--accordion-panel-height)] transition-[height] duration-200",
+        "h-[var(--accordion-panel-height)] transition-[height] duration-(--ui-duration-base) ease-out",
         "data-ending-style:h-0 data-starting-style:h-0",
         className,
       )}

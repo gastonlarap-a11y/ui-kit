@@ -1,14 +1,24 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, within } from "storybook/test";
 
-import { classNameArgType } from "../../../.storybook/arg-types.js";
+import {
+  classNameArgType,
+  variantArgType,
+} from "../../../.storybook/arg-types.js";
 import { Textarea } from "./textarea.js";
 
 const meta = {
   title: "Atoms/Textarea",
   component: Textarea,
   args: { placeholder: "What changed?" },
-  argTypes: { className: classNameArgType },
+  argTypes: {
+    size: variantArgType(
+      ["sm", "md", "lg"],
+      "Type size and minimum box. A textarea has no fixed height to align with, so " +
+        "`size` matches the single-line controls it sits above rather than a row.",
+    ),
+    className: classNameArgType,
+  },
 } satisfies Meta<typeof Textarea>;
 
 export default meta;

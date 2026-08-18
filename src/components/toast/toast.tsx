@@ -37,7 +37,7 @@ export function ToastProvider({
       <BaseToast.Portal>
         <BaseToast.Viewport
           data-slot="toast-viewport"
-          className="fixed right-4 bottom-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"
+          className="fixed inset-e-4 bottom-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"
         >
           <ToastList />
         </BaseToast.Viewport>
@@ -64,16 +64,19 @@ function ToastList() {
       toast={toast}
       data-slot="toast"
       className={cn(
-        "relative flex flex-col gap-1 rounded-lg border border-border bg-surface p-4 text-fg shadow-lg",
-        "transition-[opacity,transform] duration-200",
-        "data-ending-style:opacity-0 data-starting-style:translate-x-full data-starting-style:opacity-0",
+        "relative flex flex-col gap-1 rounded-lg border border-border bg-surface-overlay p-4 text-fg shadow-lg",
+        "transition-[opacity,transform] duration-(--ui-duration-base) ease-out",
+        "data-ending-style:opacity-0 data-starting-style:opacity-0",
+        /* Slides in from the edge the viewport is pinned to. `translate-x` is a physical
+           transform with no logical form, so the direction is flipped by hand. */
+        "data-starting-style:translate-x-full rtl:data-starting-style:-translate-x-full",
       )}
     >
       {/* Content is not decorative: Base UI needs it to wire the title and description
           into the toast's accessible name and description. */}
       <BaseToast.Content
         data-slot="toast-content"
-        className="flex flex-col gap-1 pr-6"
+        className="flex flex-col gap-1 pe-6"
       >
         <BaseToast.Title
           data-slot="toast-title"
@@ -89,7 +92,7 @@ function ToastList() {
           data-slot="toast-close"
           aria-label="Close"
           className={cn(
-            "absolute top-2 right-2 rounded-sm px-1.5 text-lg leading-none text-fg-muted",
+            "absolute inset-e-2 top-2 rounded-sm px-1.5 text-lg leading-none text-fg-muted",
             "hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           )}
         >

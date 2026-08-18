@@ -19,6 +19,21 @@ style preference.
 - **Every rendered element carries `data-slot="<component>-<part>"`** (the root is just
   `<component>`). It is the documented way consumers target parts from outside, so it is
   public API — do not drop or rename one without a changeset.
+- **A control that can sit in a row takes `size: sm | md | lg`** — 32/36/44px, `md` the
+  default, declared as a `tv()` variant in the component itself so Tailwind's scanner and
+  Prettier's class sorter both see literal strings. `Guides/Sizing` measures the real boxes
+  and fails if one drifts. Not every control qualifies: `Switch`'s thumb travel is
+  hand-computed from its track, `NumberField`'s stepper is square only by coincidence with
+  its group height, and `Checkbox`/`Radio` are sized against the text beside them. Giving
+  those a `size` would mean recomputing geometry per step, not swapping a height.
+  Watch the native `size` attribute: `<input size>` is a character width, so wrapping
+  `ComponentProps` needs `Omit<…, "size">` or the variant is a type error.
+- **Logical properties, not physical ones.** `ps-*`/`pe-*`, `ms-*`/`me-*`, `inset-s-*`/
+  `inset-e-*`, `border-s`/`border-e`, `rounded-s-*`/`rounded-e-*`, `text-start`/`text-end`.
+  Four things have no logical form and need an explicit `rtl:` variant instead — a
+  `translate-x`, an entry animation that slides from an edge, a glyph that means
+  previous/next, and `space-x-*` (which compiles to a physical margin). `Guides/Direction`
+  asserts the swap; a `pr-*` slipping back in fails there.
 - **`tv()` only when the component has real variants**, exported as `<name>Variants`
   alongside the component. Otherwise compose classes with `cn()` from `src/lib/cn.js`.
   A consumer's `className` must always win: it is the last argument to `tv()`/`cn()`.

@@ -63,7 +63,7 @@ export function ToolbarLink({
         props.render,
         [
           "inline-flex h-8 shrink-0 items-center rounded-md px-3 text-sm font-medium text-fg underline-offset-4",
-          "transition-colors outline-none hover:underline",
+          "transition-colors duration-(--ui-duration-fast) ease-out outline-none hover:underline",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         ],
         className,
@@ -75,7 +75,7 @@ export function ToolbarLink({
 
 const toolbarItemClasses = [
   "inline-flex h-8 shrink-0 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-fg",
-  "transition-colors duration-150 ease-out outline-none hover:bg-muted",
+  "transition-colors duration-(--ui-duration-fast) ease-out outline-none hover:bg-muted",
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
   "data-disabled:pointer-events-none data-disabled:opacity-50",
 ];

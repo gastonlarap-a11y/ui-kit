@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, within } from "storybook/test";
 
-import { classNameArgType } from "../../../.storybook/arg-types.js";
+import {
+  classNameArgType,
+  variantArgType,
+} from "../../../.storybook/arg-types.js";
 import { Toggle } from "./toggle.js";
 
 const meta = {
@@ -11,7 +14,14 @@ const meta = {
     children: "B",
     "aria-label": "Bold",
   },
-  argTypes: { className: classNameArgType },
+  argTypes: {
+    size: variantArgType(
+      ["sm", "md", "lg"],
+      "Square control, 32/36/44px — the same steps as `Button`, so a toggle sits in a " +
+        "toolbar row without a height override.",
+    ),
+    className: classNameArgType,
+  },
 } satisfies Meta<typeof Toggle>;
 
 export default meta;

@@ -42,8 +42,11 @@ export function Radio({ className, ...props }: RadioProps) {
     <BaseRadio.Root
       data-slot="radio"
       className={cn(
-        "flex size-5 shrink-0 items-center justify-center rounded-full border border-border bg-surface",
-        "transition-colors outline-none",
+        "relative flex size-5 shrink-0 items-center justify-center rounded-full border border-border-strong bg-surface",
+        /* Same 24px pointer target as `Checkbox`, for the same reason: the visual dot is
+           sized for the text beside it, the thing you can hit is not. */
+        "before:absolute before:top-1/2 before:left-1/2 before:size-6 before:-translate-x-1/2 before:-translate-y-1/2",
+        "transition-colors duration-(--ui-duration-fast) ease-out outline-none",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "data-checked:border-accent data-checked:bg-accent",
         "data-disabled:cursor-not-allowed data-disabled:opacity-50",

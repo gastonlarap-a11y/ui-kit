@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
+import {
+  expectBrandsDiffer,
+  expectSchemesDiffer,
+  readPerBrand,
+  ThemeMatrixGrid,
+} from "../../../.storybook/theme-matrix.js";
 import { Button } from "../button/button.js";
 import { ToastProvider, useToast } from "./toast.js";
 
@@ -95,3 +101,54 @@ export const AnnouncesAndDismisses: Story = {
     );
   },
 };
+
+/**
+ * Triggers only. A toast is rendered by its provider's viewport on `<body>`, so it
+ * follows the theme of `<html>` rather than the subtree that raised it — the same
+ * portal limitation `PortalledDialogFollowsTheDocumentTheme` in `confirm.stories.tsx`
+ * asserts for the whole kit.
+ *
+ * One provider wraps the whole matrix rather than one per cell, which is both how the
+ * component is meant to be mounted and what keeps it valid: the viewport is a
+ * `role="region"` landmark with a fixed name, so six providers would be six
+ * indistinguishable landmarks and axe would rightly reject it.
+ */
+export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          "    <ToastProvider>{children}</ToastProvider>",
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
+  render: (args) => (
+    <ToastProvider {...args}>
+      <ThemeMatrixGrid>
+        {(brand, scheme) => <RaiseButton label={`${scheme} ${brand}`} />}
+      </ThemeMatrixGrid>
+    </ToastProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const triggerIn = (cell: HTMLElement) => within(cell).getByRole("button");
+
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "light", triggerIn, "backgroundColor"),
+    );
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "dark", triggerIn, "backgroundColor"),
+    );
+    await expectSchemesDiffer(canvasElement);
+  },
+};
+
+/** Raises a toast named after the theme it sits in. */
+function RaiseButton({ label }: { label: string }) {
+  const toast = useToast();
+  return <Button onClick={() => toast.add({ title: label })}>{label}</Button>;
+}

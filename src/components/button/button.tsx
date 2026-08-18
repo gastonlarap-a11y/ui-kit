@@ -6,7 +6,7 @@ import { SpinnerIcon } from "../../lib/icons.js";
 export const buttonVariants = tv({
   base: [
     "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap",
-    "font-medium transition-[color,background-color,box-shadow,translate] duration-150 ease-out",
+    "font-medium transition-[color,background-color,box-shadow,translate] duration-(--ui-duration-fast) ease-out",
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     /* A button that visibly gives under the pointer feels connected to the click. */
     "active:translate-y-px",
@@ -16,12 +16,17 @@ export const buttonVariants = tv({
     variant: {
       solid: "bg-accent text-accent-fg shadow-sm hover:bg-accent-hover",
       outline:
-        "border border-border bg-surface text-fg shadow-sm hover:bg-muted",
+        "border border-border-strong bg-surface text-fg shadow-sm hover:bg-muted",
       ghost: "text-fg hover:bg-muted",
       danger: "bg-danger text-danger-fg shadow-sm hover:opacity-90",
     },
+    /**
+     * Height first: `sm`/`md`/`lg` are 32/36/44px, the same three steps `Input`,
+     * `SelectTrigger` and `Toggle` use, so controls of the same size line up in a row
+     * without anyone reaching for a `className`.
+     */
     size: {
-      sm: "h-8 rounded-md px-3 text-xs",
+      sm: "h-8 rounded-md px-3 text-sm",
       md: "h-9 rounded-md px-4 text-sm",
       lg: "h-11 rounded-lg px-6 text-base",
     },

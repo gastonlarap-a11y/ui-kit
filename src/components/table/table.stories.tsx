@@ -2,6 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, within } from "storybook/test";
 
 import { classNameArgType } from "../../../.storybook/arg-types.js";
+import {
+  expectBrandsDiffer,
+  expectSchemesDiffer,
+  readPerBrand,
+  ThemeMatrixGrid,
+} from "../../../.storybook/theme-matrix.js";
 import { Badge } from "../badge/badge.js";
 import {
   Table,
@@ -79,5 +85,79 @@ export const ExposesRowsAndColumns: Story = {
     );
     await expect(canvas.getAllByRole("columnheader")).toHaveLength(3);
     await expect(canvas.getAllByRole("row")).toHaveLength(invoices.length + 2);
+  },
+};
+
+/**
+ * A table is mostly hairlines: every row is separated by `--ui-border` and nothing else.
+ * That makes it the component where a border token that loses contrast stops the data
+ * being readable as rows at all, which no amount of correct markup compensates for.
+ */
+export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          "    <Table>…</Table>",
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
+  render: (args) => (
+    <ThemeMatrixGrid>
+      {(brand, scheme) => (
+        <Table {...args} className="w-56">
+          <TableCaption>{`${scheme} ${brand}`}</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Invoice</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>INV-003</TableCell>
+              <TableCell>
+                <Badge variant="success">Paid</Badge>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>INV-001</TableCell>
+              <TableCell>
+                <Badge variant="neutral">Refunded</Badge>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      )}
+    </ThemeMatrixGrid>
+  ),
+  play: async ({ canvasElement }) => {
+    const bodyRowIn = (cell: HTMLElement) => {
+      const row = cell.querySelector('tbody [data-slot="table-row"]');
+      if (!row) throw new Error("the matrix cell rendered no table row");
+      return row;
+    };
+
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "light", bodyRowIn, "borderBottomColor"),
+    );
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "dark", bodyRowIn, "borderBottomColor"),
+    );
+
+    // The rule between rows must not resolve to the surface it sits on.
+    for (const scheme of ["light", "dark"] as const) {
+      const cell = within(canvasElement).getByTestId(`cell-${scheme}-blue`);
+      await expect(
+        getComputedStyle(bodyRowIn(cell)).borderBottomColor,
+      ).not.toBe(getComputedStyle(bodyRowIn(cell)).backgroundColor);
+    }
+
+    await expectSchemesDiffer(canvasElement);
   },
 };

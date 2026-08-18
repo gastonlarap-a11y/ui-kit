@@ -25,8 +25,8 @@ export function Switch({ className, ...props }: SwitchProps) {
     <BaseSwitch.Root
       data-slot="switch"
       className={cn(
-        "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-border bg-muted p-0.5",
-        "transition-colors outline-none",
+        "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-border-strong bg-muted p-0.5",
+        "transition-colors duration-(--ui-duration-fast) ease-out outline-none",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "data-checked:border-accent data-checked:bg-accent",
         "data-disabled:cursor-not-allowed data-disabled:opacity-50",
@@ -37,8 +37,12 @@ export function Switch({ className, ...props }: SwitchProps) {
       <BaseSwitch.Thumb
         data-slot="switch-thumb"
         className={cn(
-          "size-4.5 rounded-full bg-surface shadow-sm transition-transform",
-          "data-checked:translate-x-4",
+          "size-4.5 rounded-full bg-surface shadow-sm",
+          "transition-transform duration-(--ui-duration-fast) ease-out",
+          /* `translate-x` is a physical transform — CSS has no logical equivalent — so
+             the thumb's travel is flipped by hand rather than by renaming a utility.
+             The distance is `w-10` − `p-0.5`×2 − `size-4.5`, rounded to the nearest step. */
+          "data-checked:translate-x-4 rtl:data-checked:-translate-x-4",
         )}
       />
     </BaseSwitch.Root>

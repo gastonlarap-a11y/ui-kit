@@ -65,6 +65,9 @@ export function Pagination({
       className={cn("flex items-center gap-1", className)}
       {...props}
     >
+      {/* The four chevrons mean previous/next, not left/right, so they mirror in a
+          right-to-left document. `rtl:-scale-x-100` on each icon does that; the vertical
+          glyphs elsewhere in the kit (expand, sort) are direction-neutral and do not. */}
       {showEdges ? (
         <PaginationControl
           slot="first"
@@ -72,7 +75,7 @@ export function Pagination({
           disabled={!canPrevious}
           onActivate={() => goTo(1)}
         >
-          <ChevronFirstIcon className="size-4" />
+          <ChevronFirstIcon className="size-4 rtl:-scale-x-100" />
         </PaginationControl>
       ) : null}
 
@@ -82,7 +85,7 @@ export function Pagination({
         disabled={!canPrevious}
         onActivate={() => goTo(page - 1)}
       >
-        <ChevronLeftIcon className="size-4" />
+        <ChevronLeftIcon className="size-4 rtl:-scale-x-100" />
       </PaginationControl>
 
       {buildRange(page, pageCount, siblingCount).map((entry, index) =>
@@ -119,7 +122,7 @@ export function Pagination({
         disabled={!canNext}
         onActivate={() => goTo(page + 1)}
       >
-        <ChevronRightIcon className="size-4" />
+        <ChevronRightIcon className="size-4 rtl:-scale-x-100" />
       </PaginationControl>
 
       {showEdges ? (
@@ -129,7 +132,7 @@ export function Pagination({
           disabled={!canNext}
           onActivate={() => goTo(pageCount)}
         >
-          <ChevronLastIcon className="size-4" />
+          <ChevronLastIcon className="size-4 rtl:-scale-x-100" />
         </PaginationControl>
       ) : null}
     </nav>

@@ -24,7 +24,14 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
     <div
       data-slot="skeleton"
       aria-hidden
-      className={cn("animate-pulse rounded-md bg-muted", className)}
+      className={cn(
+        "animate-pulse rounded-md bg-muted",
+        /* The pulse is the only part that moves and it says nothing the static block
+           does not; a reader who asked for less motion loses no information here.
+           `Button`'s spinner is left alone on purpose — its motion is the state. */
+        "motion-reduce:animate-none",
+        className,
+      )}
       {...props}
     />
   );

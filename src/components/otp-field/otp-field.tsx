@@ -81,8 +81,8 @@ function OtpSlot({
           index === 0 ? undefined : `Character ${index + 1} of ${length}`
         }
         className={cn(
-          "size-10 rounded-md border border-border bg-surface text-center text-base text-fg tabular-nums shadow-sm",
-          "transition-[border-color,box-shadow] duration-150 ease-out outline-none",
+          "size-10 rounded-md border border-border-strong bg-surface text-center text-base text-fg tabular-nums shadow-sm",
+          "transition-[border-color,box-shadow] duration-(--ui-duration-fast) ease-out outline-none",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "data-invalid:border-danger",

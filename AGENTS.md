@@ -9,7 +9,8 @@ npm as `@galarap/ui`, documented as a Storybook site on GitHub Pages.
 - `src/lib/` — helpers; `cn`, `useDataTable` and `useConfirm` are public, `icons.tsx` and
   `popup-classes.ts` never ship in the barrel
 - `src/styles/tokens.css` — the public token entrypoint, shipped uncompiled on purpose
-- `.storybook/` — docs-only helpers; they live outside `src/` because tsup builds every `src/**` module
+- `.storybook/` — docs-only helpers (`arg-types.ts`, `theme-matrix.tsx`); they live outside
+  `src/` because tsup builds every `src/**` module
 - `scripts/` — build and publish guards, run from npm scripts
 
 ## Commands
@@ -47,26 +48,46 @@ npm as `@galarap/ui`, documented as a Storybook site on GitHub Pages.
   the wrapper wins and silently overrides it — this produced a real contrast failure in
   `Toolbar`. `DialogTrigger` is the pattern to copy: behaviour only, no styling.
 - Nothing runs on import: `bundle: false`, `sideEffects` limited to CSS, no module-level state.
-- Tests sit with the unit of change: each component's own `.stories.tsx`.
+- Tests sit with the unit of change: each component's own `.stories.tsx`, plus three
+  cross-cutting guides in `src/docs/` that measure what no single component can:
+  `Guides/Tokens` (every colour pair's WCAG ratio), `Guides/Sizing` (control heights agree)
+  and `Guides/Direction` (the layout mirrors under `dir="rtl"`).
 - Pre-1.0: the public API is not stable until `1.0.0`. Breaking changes are majors, and
   anything removed is deprecated first.
 
-## Known gap
+## Theme coverage
 
-23 of the 42 components render the 3 brands × 2 schemes matrix; axe checks the other 19
-in the default `blue`/`light` theme alone, so a contrast regression in `green` or `dark`
-does not fail CI for them. Everything added after the original catalogue ships one, as do
-the five whose surface changed since. The remaining 19 are the untouched originals. New
-components ship a `ThemeMatrix` story (see the `new-component` skill); retrofitting the
-rest is open work.
+All 42 components render the 3 brands × 2 schemes matrix, so a contrast regression in
+`green` or `dark` fails CI for every one of them. The grid, the cell lookup and the two
+assertions every matrix repeats live in `.storybook/theme-matrix.tsx`; a new component
+composes `ThemeMatrixGrid` and asserts what is brand- or scheme-dependent about itself
+(see the `new-component` skill).
 
-The matrix earns its keep: it has already caught three real problems — a label inheriting
-the host's text color inside `.dark`, a toolbar item overriding a composed button's
-foreground at 3.26:1, and the portal limitation below.
+axe runs pinned to `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa` and
+`best-practice`, with `target-size` (SC 2.5.8) enabled by hand — it is the only WCAG 2.2
+rule axe-core 4.13 ships and it is off by default, so selecting the tag alone checks
+nothing.
+
+`Guides/Tokens` in `src/docs/tokens.stories.tsx` measures every documented
+foreground/background pair in all six combinations by painting it to a one-pixel canvas
+and computing the WCAG ratio. It is what makes a token edit safe: `tokens.css` used to
+say "recompute before changing any colour" and nothing enforced it.
+
+The matrix earns its keep: it has caught five real problems — a label inheriting the
+host's text color inside `.dark`, a toolbar item overriding a composed button's
+foreground at 3.26:1, `Tabs` styling a `data-selected` attribute Base UI never sets
+(leaving the selected tab with no visible state at all), a duplicated `role="region"`
+landmark under more than one `ToastProvider`, and the portal limitation below.
+
+Control boundaries meet SC 1.4.11: `--ui-border-strong` measures between 3.08:1 and
+3.52:1 against both `--ui-surface` and `--ui-canvas` in all six combinations, and the
+story asserts it. `--ui-border` stays a soft hairline for what only groups or separates,
+which 1.4.11 does not reach.
 
 Portalled components resolve the theme of `<html>`, not of the `[data-theme]` / `.dark`
 subtree their trigger sits in, because they render into `<body>`. Scoped theming works
-in place; popups follow the document. See the tokens rule and
+in place; popups follow the document. Their matrices therefore audit the trigger in all
+six combinations and leave the popup to the document theme. See the tokens rule and
 `PortalledDialogFollowsTheDocumentTheme` in `confirm.stories.tsx`.
 
 ## Engineering standards

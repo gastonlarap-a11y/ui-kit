@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
+import {
+  expectBrandsDiffer,
+  expectSchemesDiffer,
+  readPerBrand,
+  ThemeMatrixGrid,
+} from "../../../.storybook/theme-matrix.js";
 import { Field, FieldLabel } from "../field/field.js";
 import {
   Select,
@@ -123,5 +129,80 @@ export const OpensAndSelects: Story = {
     await waitFor(() => expect(trigger).toHaveTextContent(/pro/i));
     // Focus must come back to the trigger, or keyboard users are stranded.
     await waitFor(() => expect(trigger).toHaveFocus());
+  },
+};
+
+/**
+ * Triggers only. `SelectContent` is portalled to `<body>` and resolves the theme of
+ * `<html>` rather than the subtree its trigger sits in, and a select is modal so only
+ * one listbox can be open at a time — see `PortalledDialogFollowsTheDocumentTheme` in
+ * `confirm.stories.tsx`, which asserts that limitation once for the whole kit.
+ *
+ * Both trigger states are rendered: the placeholder is `--ui-fg-muted` and the chosen
+ * value is `--ui-fg`, and telling them apart is how you know a select is still empty.
+ */
+export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          "    <Select>…</Select>",
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
+  render: (args) => (
+    <ThemeMatrixGrid>
+      {(brand, scheme) => (
+        <div className="flex w-44 flex-col gap-3">
+          <Field name={`${scheme}-${brand}-empty`}>
+            <FieldLabel>{`${scheme} ${brand}`}</FieldLabel>
+            <Select {...args}>
+              <SelectTrigger placeholder="Choose a plan" />
+              <SelectContent>
+                <SelectItem value="free">Free</SelectItem>
+                <SelectItem value="pro">Pro</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field name={`${scheme}-${brand}-set`}>
+            <FieldLabel>Chosen</FieldLabel>
+            <Select {...args} defaultValue="pro" items={{ pro: "Pro" }}>
+              <SelectTrigger placeholder="Choose a plan" />
+              <SelectContent>
+                <SelectItem value="pro">Pro</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+      )}
+    </ThemeMatrixGrid>
+  ),
+  play: async ({ canvasElement }) => {
+    const emptyTrigger = (cell: HTMLElement) =>
+      within(cell).getAllByRole("combobox")[0] as HTMLElement;
+
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "light", emptyTrigger, "borderTopColor"),
+    );
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "dark", emptyTrigger, "borderTopColor"),
+    );
+
+    // A placeholder must not read as a chosen value.
+    for (const scheme of ["light", "dark"] as const) {
+      const cell = within(canvasElement).getByTestId(`cell-${scheme}-blue`);
+      const [empty, filled] = within(cell).getAllByRole("combobox");
+      if (!empty || !filled) throw new Error("the cell rendered one select");
+      await expect(
+        getComputedStyle(within(empty).getByText("Choose a plan")).color,
+      ).not.toBe(getComputedStyle(within(filled).getByText("Pro")).color);
+    }
+
+    await expectSchemesDiffer(canvasElement);
   },
 };

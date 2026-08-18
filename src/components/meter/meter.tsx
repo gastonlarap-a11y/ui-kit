@@ -67,7 +67,7 @@ export function Meter({ className, label, showValue, ...props }: MeterProps) {
       >
         <BaseMeter.Indicator
           data-slot="meter-indicator"
-          className="h-full bg-accent transition-[width] duration-300"
+          className="h-full bg-accent transition-[width] duration-(--ui-duration-slow) ease-out"
         />
       </BaseMeter.Track>
     </BaseMeter.Root>

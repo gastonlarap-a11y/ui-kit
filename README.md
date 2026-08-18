@@ -84,9 +84,9 @@ One caveat worth knowing before you rely on it: components that render in a port
 resolve the theme on `<html>` rather than the subtree their trigger sits in. Scoped
 theming applies to in-place components; popups follow the document.
 
-23 of the 42 components are rendered in all six brand/scheme combinations on every test
-run, so a contrast regression in any of them fails CI. The rest are audited with axe in
-the default `blue` / light theme.
+All 42 components are rendered in all six brand/scheme combinations on every test run, so
+a contrast regression in any of them fails CI. axe runs pinned to WCAG 2.2 AA, and every
+documented token pair is measured against its WCAG ratio in all six combinations.
 
 ## Development
 

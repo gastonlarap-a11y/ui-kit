@@ -4,9 +4,14 @@ storybook-static
 coverage
 *.tgz
 
+# Screenshots and traces from Playwright MCP, used to eyeball a change in a real browser.
+.playwright-mcp
+
 .DS_Store
 *.log
 .eslintcache
+*.swp
+*.swo
 
 .vercel
 .env

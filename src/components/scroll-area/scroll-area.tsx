@@ -70,7 +70,9 @@ function ScrollAreaScrollbar({
       orientation={orientation}
       className={cn(
         "flex touch-none rounded-full bg-muted/60 p-0.5 select-none",
-        "opacity-0 transition-opacity delay-300 duration-150",
+        /* `delay-300` stays a raw value: it is how long the scrollbar waits before
+           fading, not how long the fade takes, so reduced motion has no say in it. */
+        "opacity-0 transition-opacity delay-300 duration-(--ui-duration-fast) ease-out",
         /* Visible while scrolling or hovering, invisible otherwise — a permanent bar
            is chrome the reader did not ask for. */
         "data-hovering:opacity-100 data-hovering:delay-0 data-scrolling:opacity-100 data-scrolling:delay-0",

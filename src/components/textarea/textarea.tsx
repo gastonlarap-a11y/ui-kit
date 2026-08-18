@@ -1,19 +1,37 @@
 import type { Ref, TextareaHTMLAttributes } from "react";
-import { tv } from "tailwind-variants";
+import { tv, type VariantProps } from "tailwind-variants";
 
 import { cn } from "../../lib/cn.js";
 
 export const textareaVariants = tv({
   base: [
-    "flex min-h-20 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-fg",
+    "flex w-full rounded-md border border-border-strong bg-surface text-fg",
     "placeholder:text-muted-fg",
+    "transition-[border-color,box-shadow] duration-(--ui-duration-fast) ease-out",
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
     "disabled:cursor-not-allowed disabled:opacity-50",
     "aria-invalid:border-danger aria-invalid:focus-visible:outline-danger",
   ],
+  variants: {
+    /**
+     * A textarea has no fixed height to align with, so `size` sets its type and its
+     * minimum box — matching the single-line controls it sits above in a form.
+     */
+    size: {
+      sm: "min-h-16 px-3 py-1.5 text-sm",
+      md: "min-h-20 px-3 py-2 text-sm",
+      lg: "min-h-24 px-4 py-2.5 text-base",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
 });
 
-export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps
+  extends
+    TextareaHTMLAttributes<HTMLTextAreaElement>,
+    VariantProps<typeof textareaVariants> {
   /**
    * Grows with its content instead of scrolling inside a fixed box.
    *
@@ -41,12 +59,18 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
  * @example
  * <Textarea autosize placeholder="Grows as you type" />
  */
-export function Textarea({ className, autosize, ...props }: TextareaProps) {
+export function Textarea({
+  className,
+  size,
+  autosize,
+  ...props
+}: TextareaProps) {
   return (
     <textarea
       data-slot="textarea"
       data-autosize={autosize || undefined}
       className={textareaVariants({
+        size,
         className: cn(
           autosize && "field-sizing-content resize-none",
           className,

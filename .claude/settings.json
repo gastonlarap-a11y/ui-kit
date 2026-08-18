@@ -68,7 +68,8 @@
     "excludedCommands": [
       "npm run test",
       "npm run test:watch",
-      "npm run storybook"
+      "npm run storybook",
+      "npx vitest run"
     ]
   }
 }

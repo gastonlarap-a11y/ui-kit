@@ -11,7 +11,13 @@ import {
 
 import { cn } from "../../lib/cn.js";
 
-export type DrawerSide = "bottom" | "top" | "left" | "right";
+/**
+ * `start` and `end` follow the reading direction; `left` and `right` are the physical
+ * edges of the screen whatever the direction is. Both are useful and they are not the
+ * same request: a navigation panel belongs at the reading start, while a chart inspector
+ * pinned to the right stays right in Arabic too.
+ */
+export type DrawerSide = "bottom" | "top" | "start" | "end" | "left" | "right";
 
 export interface DrawerProps extends Omit<
   ComponentProps<typeof BaseDrawer.Root>,
@@ -19,6 +25,8 @@ export interface DrawerProps extends Omit<
 > {
   /**
    * Which edge it enters from. Defaults to `"bottom"`.
+   *
+   * `"start"` / `"end"` follow the reading direction, `"left"` / `"right"` do not.
    *
    * The swipe direction is derived from it, so a side panel is always dismissed sideways
    * and a sheet downwards. Override `swipeDirection` only if you want them to disagree.
@@ -34,9 +42,17 @@ export interface DrawerProps extends Omit<
  */
 const DrawerSideContext = createContext<DrawerSide>("bottom");
 
+/**
+ * Base UI's swipe directions are physical, so `start`/`end` fall back to the LTR reading
+ * of themselves. The gesture ends up mirrored in an RTL document — the panel still
+ * dismisses toward the edge it came from, which is what the hand expects, because the
+ * swipe follows the pointer rather than the axis label.
+ */
 const swipeBySide = {
   bottom: "down",
   top: "up",
+  start: "left",
+  end: "right",
   left: "left",
   right: "right",
 } as const;
@@ -104,7 +120,8 @@ export function DrawerContent({
       <BaseDrawer.Backdrop
         data-slot="drawer-backdrop"
         className={cn(
-          "fixed inset-0 bg-black/50 transition-opacity duration-200",
+          "fixed inset-0 bg-scrim",
+          "transition-opacity duration-(--ui-duration-base) ease-out",
           "data-ending-style:opacity-0 data-starting-style:opacity-0",
         )}
       />
@@ -115,8 +132,8 @@ export function DrawerContent({
         <BaseDrawer.Popup
           data-slot="drawer-content"
           className={cn(
-            "flex flex-col gap-4 border-border bg-surface p-6 text-fg shadow-lg",
-            "transition-transform duration-200",
+            "flex flex-col gap-4 border-border bg-surface-overlay p-6 text-fg shadow-lg",
+            "transition-transform duration-(--ui-duration-base) ease-out",
             popupBySide[side],
             className,
           )}
@@ -139,16 +156,24 @@ export function DrawerContent({
   );
 }
 
+/**
+ * `start`/`end` use the logical utilities, so they follow `dir`. `left`/`right` keep the
+ * physical ones on purpose — that is the whole difference between the two.
+ */
 const viewportBySide = {
   bottom: "items-end",
   top: "items-start",
-  left: "justify-start",
-  right: "justify-end",
+  start: "justify-start",
+  end: "justify-end",
+  left: "justify-start rtl:justify-end",
+  right: "justify-end rtl:justify-start",
 } as const;
 
 const popupBySide = {
   bottom: "max-h-[85vh] w-full rounded-t-lg border-t",
   top: "max-h-[85vh] w-full rounded-b-lg border-b",
+  start: "h-full w-80 max-w-[85vw] rounded-e-lg border-e",
+  end: "h-full w-80 max-w-[85vw] rounded-s-lg border-s",
   left: "h-full w-80 max-w-[85vw] rounded-r-lg border-r",
   right: "h-full w-80 max-w-[85vw] rounded-l-lg border-l",
 } as const;

@@ -12,6 +12,10 @@ Everything below derives from it, so decide before writing anything:
 
 - The parts: one element, or a compound (`X`, `XTrigger`, `XContent`, …)?
 - The variants, if any, and their default.
+- Can it sit in a row beside a `Button`? Then it takes `size: sm | md | lg` (32/36/44px)
+  and `Guides/Sizing` gets a column for it. If its geometry is derived from its own box —
+  a thumb that travels, a stepper that has to stay square — say so in a comment and leave
+  `size` off rather than fake it.
 - The accessibility contract the consumer must honor (e.g. `Dialog` needs a `DialogTitle`
   because that becomes its accessible name). It goes in the JSDoc.
 
@@ -53,9 +57,13 @@ Copy the structure from `src/components/button/button.stories.tsx`:
   `.storybook/arg-types.js` — docgen cannot see either.
 - A `play` function per behaviour worth guaranteeing. Behaviour-only stories get
   `tags: ["!autodocs"]`.
-- **A `ThemeMatrix` story.** Copy Button's: it renders the three brands in both schemes so
-  axe checks all six combinations. Without it the component is only contrast-audited in
-  `blue`/`light`, which is the gap recorded in AGENTS.md — do not add to it.
+- **A `ThemeMatrix` story**, built on `ThemeMatrixGrid` from `.storybook/theme-matrix.js`
+  so all 42 components audit the same six combinations. Do not hand-roll the grid. Assert
+  what is genuinely brand- or scheme-dependent about _your_ component with `readPerBrand`
+  — `--ui-surface` is white in all three light palettes, so a test that samples it in
+  light can never fail. `button.stories.tsx` is the exemplar for an in-place component,
+  `confirm.stories.tsx` for a portalled one (its popup follows `<html>`, so the matrix
+  audits the trigger).
 
 ## 5. Register it (magnet file)
 

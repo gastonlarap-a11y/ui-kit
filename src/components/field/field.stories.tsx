@@ -2,6 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, within } from "storybook/test";
 
 import { classNameArgType } from "../../../.storybook/arg-types.js";
+import {
+  expectBrandsDiffer,
+  expectSchemesDiffer,
+  readPerBrand,
+  ThemeMatrixGrid,
+} from "../../../.storybook/theme-matrix.js";
 import { Input } from "../input/input.js";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field.js";
 
@@ -94,5 +100,75 @@ export const ReportsMissingValue: Story = {
       await canvas.findByText("An email address is required."),
     ).toBeVisible();
     await expect(input).toHaveAttribute("aria-invalid", "true");
+  },
+};
+
+/**
+ * A field is three type sizes and three inks stacked on one canvas: the label in
+ * `--ui-fg`, the description in `--ui-fg-muted` at `text-xs`, and the error in
+ * `--ui-danger`. The description is the tightest pair in the kit — small text on the
+ * page background — so it is the one worth seeing in all six combinations.
+ */
+export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          '    <Field name="email">…</Field>',
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
+  render: (args) => (
+    <ThemeMatrixGrid>
+      {(brand, scheme) => (
+        <div className="flex w-44 flex-col gap-3">
+          <Field {...args} name={`${scheme}-${brand}`}>
+            <FieldLabel>{`${scheme} ${brand}`}</FieldLabel>
+            <Input placeholder="you@company.com" />
+            <FieldDescription>Billing receipts only.</FieldDescription>
+          </Field>
+          {/*
+           * `invalid` on the root is what drives `data-invalid:text-danger` on the
+           * label. `FieldError` is left out: it renders from real `ValidityState`, not
+           * from this prop, so it would need a submit to appear.
+           */}
+          <Field {...args} name={`${scheme}-${brand}-bad`} invalid>
+            <FieldLabel>Invalid</FieldLabel>
+            <Input defaultValue="not-an-email" />
+          </Field>
+        </div>
+      )}
+    </ThemeMatrixGrid>
+  ),
+  play: async ({ canvasElement }) => {
+    const descriptionIn = (cell: HTMLElement) => {
+      const description = cell.querySelector('[data-slot="field-description"]');
+      if (!description)
+        throw new Error("the matrix cell rendered no description");
+      return description;
+    };
+
+    // The muted ink is brand-tinted, so it must resolve differently in each palette.
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "light", descriptionIn, "color"),
+    );
+
+    // Label, description and invalid label are three deliberately different inks.
+    for (const scheme of ["light", "dark"] as const) {
+      const cell = within(canvasElement).getByTestId(`cell-${scheme}-blue`);
+      const inks = [
+        getComputedStyle(within(cell).getByText(`${scheme} blue`)).color,
+        getComputedStyle(descriptionIn(cell)).color,
+        getComputedStyle(within(cell).getByText("Invalid")).color,
+      ];
+      await expect(new Set(inks).size).toBe(3);
+    }
+
+    await expectSchemesDiffer(canvasElement);
   },
 };

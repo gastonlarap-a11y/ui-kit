@@ -5,6 +5,11 @@ import type { ComponentProps } from "react";
 
 import { cn } from "../../lib/cn.js";
 import { CheckIcon } from "../../lib/icons.js";
+import {
+  itemClasses,
+  popupScrollClasses,
+  popupSurfaceClasses,
+} from "../../lib/popup-classes.js";
 
 export type DropdownMenuProps = ComponentProps<typeof BaseMenu.Root>;
 
@@ -51,11 +56,12 @@ export function DropdownMenuContent({
       >
         <BaseMenu.Popup
           data-slot="dropdown-menu-content"
+          /* Scrolls like the other popups now: a menu long enough to run past the
+             viewport used to have no way to reach its last item. */
           className={cn(
-            "min-w-44 rounded-md border border-border bg-surface p-1 text-fg shadow-lg",
-            "transition-[opacity,transform] duration-150",
-            "data-ending-style:scale-95 data-ending-style:opacity-0",
-            "data-starting-style:scale-95 data-starting-style:opacity-0",
+            popupSurfaceClasses,
+            popupScrollClasses,
+            "min-w-44",
             className,
           )}
           {...props}
@@ -66,12 +72,6 @@ export function DropdownMenuContent({
     </BaseMenu.Portal>
   );
 }
-
-const itemClasses = [
-  "flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none",
-  "data-highlighted:bg-muted data-highlighted:text-fg",
-  "data-disabled:pointer-events-none data-disabled:opacity-50",
-];
 
 export function DropdownMenuItem({
   className,

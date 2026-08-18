@@ -2,9 +2,11 @@
 
 import { Select as BaseSelect } from "@base-ui/react/select";
 import type { ComponentProps } from "react";
+import { tv, type VariantProps } from "tailwind-variants";
 
 import { cn } from "../../lib/cn.js";
 import { CheckIcon, ChevronDownIcon } from "../../lib/icons.js";
+import { itemClasses, popupClasses } from "../../lib/popup-classes.js";
 
 export type SelectProps = ComponentProps<typeof BaseSelect.Root>;
 
@@ -32,29 +34,51 @@ export function Select(props: SelectProps) {
   return <BaseSelect.Root {...props} />;
 }
 
-export interface SelectTriggerProps extends ComponentProps<
-  typeof BaseSelect.Trigger
-> {
+export const selectTriggerVariants = tv({
+  base: [
+    "flex w-full items-center justify-between gap-2 rounded-md border border-border-strong bg-surface text-fg shadow-sm",
+    "transition-colors duration-(--ui-duration-fast) ease-out outline-none",
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+    "data-disabled:cursor-not-allowed data-disabled:opacity-50",
+    "data-invalid:border-danger",
+  ],
+  variants: {
+    /** The same 32/36/44px as `Input`, so the two line up in a form row. */
+    size: {
+      sm: "h-8 px-3 text-sm",
+      md: "h-9 px-3 text-sm",
+      lg: "h-11 px-4 text-base",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
+
+export interface SelectTriggerProps
+  extends
+    ComponentProps<typeof BaseSelect.Trigger>,
+    VariantProps<typeof selectTriggerVariants> {
   /** Shown while nothing is selected. */
   placeholder?: string;
 }
 
 export function SelectTrigger({
   className,
+  size,
   placeholder,
   ...props
 }: SelectTriggerProps) {
   return (
     <BaseSelect.Trigger
       data-slot="select-trigger"
-      className={cn(
-        "flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 text-sm text-fg shadow-sm",
-        "transition-colors duration-150 ease-out outline-none",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-        "data-disabled:cursor-not-allowed data-disabled:opacity-50",
-        "data-invalid:border-danger",
-        className,
-      )}
+      className={(state) =>
+        selectTriggerVariants({
+          size,
+          className:
+            typeof className === "function" ? className(state) : className,
+        })
+      }
       {...props}
     >
       {/* Base UI renders the label itself and flags the empty state, so there is no
@@ -92,14 +116,7 @@ export function SelectContent({
       >
         <BaseSelect.Popup
           data-slot="select-content"
-          className={cn(
-            "max-h-[min(24rem,var(--available-height))] min-w-[var(--anchor-width)] overflow-y-auto",
-            "rounded-md border border-border bg-surface p-1 text-fg shadow-lg",
-            "transition-[opacity,transform] duration-150",
-            "data-ending-style:scale-95 data-ending-style:opacity-0",
-            "data-starting-style:scale-95 data-starting-style:opacity-0",
-            className,
-          )}
+          className={cn(popupClasses, className)}
           {...props}
         >
           <BaseSelect.List data-slot="select-list">{children}</BaseSelect.List>
@@ -115,12 +132,9 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
   return (
     <BaseSelect.Item
       data-slot="select-item"
-      className={cn(
-        "flex cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-none",
-        "data-highlighted:bg-muted data-highlighted:text-fg",
-        "data-disabled:pointer-events-none data-disabled:opacity-50",
-        className,
-      )}
+      /* `justify-between` on top of the shared item classes: a select item puts its
+         check on the trailing edge, where a menu item's icon leads. */
+      className={cn(itemClasses, "justify-between", className)}
       {...props}
     >
       <BaseSelect.ItemText data-slot="select-item-text">

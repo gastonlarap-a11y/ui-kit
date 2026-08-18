@@ -258,7 +258,7 @@ function DataTableHeadCell<TRow>({
           onClick={onToggle}
           className={cn(
             "-mx-1 inline-flex items-center gap-1 rounded-sm px-1 py-0.5 font-medium",
-            "transition-colors hover:text-fg",
+            "transition-colors duration-(--ui-duration-fast) ease-out hover:text-fg",
             "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
             column.align === "end" && "flex-row-reverse",
           )}
@@ -322,7 +322,13 @@ function DataTableFooter<TRow>({
       <div className="flex items-center gap-4 text-sm text-fg-muted">
         {/* A live region: the count changes as a result of typing in the search box,
             which a screen reader would otherwise never hear about. */}
-        <p data-slot="data-table-count" aria-live="polite">
+        {/* `tabular-nums`: the count changes as you type in the search box, and
+            proportional digits make the whole line jitter on every keystroke. */}
+        <p
+          data-slot="data-table-count"
+          aria-live="polite"
+          className="tabular-nums"
+        >
           {selectable && table.selection.length > 0
             ? `${table.selection.length} of ${table.rowCount} selected`
             : `${table.rowCount} ${table.rowCount === 1 ? "row" : "rows"}`}
@@ -335,10 +341,14 @@ function DataTableFooter<TRow>({
               value={String(table.pageSize)}
               onValueChange={(value) => table.setPageSize(Number(value))}
             >
-              <SelectTrigger className="h-8 w-20" />
+              <SelectTrigger size="sm" className="w-20" />
               <SelectContent>
                 {pageSizeOptions.map((size) => (
-                  <SelectItem key={size} value={String(size)}>
+                  <SelectItem
+                    key={size}
+                    value={String(size)}
+                    className="tabular-nums"
+                  >
                     {size}
                   </SelectItem>
                 ))}
@@ -359,10 +369,15 @@ function DataTableFooter<TRow>({
   );
 }
 
+/**
+ * `align` is already logical — `"start" | "center" | "end"` — so the CSS has to be too.
+ * It used to resolve to `text-right`/`text-left`, which put a column declared `align:
+ * "end"` on the wrong side of a right-to-left table.
+ */
 function alignClass(align: DataTableColumn<unknown>["align"]): string {
-  if (align === "end") return "text-right";
+  if (align === "end") return "text-end";
   if (align === "center") return "text-center";
-  return "text-left";
+  return "text-start";
 }
 
 /** Dates and booleans need a readable form; everything else prints as-is. */

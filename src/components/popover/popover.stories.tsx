@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
+import {
+  expectBrandsDiffer,
+  expectSchemesDiffer,
+  readPerBrand,
+  ThemeMatrixGrid,
+} from "../../../.storybook/theme-matrix.js";
 import { Button } from "../button/button.js";
 import { Field, FieldLabel } from "../field/field.js";
 import { Input } from "../input/input.js";
@@ -71,5 +77,56 @@ export const OpensAndClosesOnEscape: Story = {
       ).not.toBeInTheDocument(),
     );
     await waitFor(() => expect(trigger).toHaveFocus());
+  },
+};
+
+/**
+ * Triggers only. `PopoverContent` is portalled to `<body>` and follows the theme of
+ * `<html>` rather than the subtree its trigger sits in — see
+ * `PortalledDialogFollowsTheDocumentTheme` in `confirm.stories.tsx`, which asserts that
+ * limitation once for the whole kit. The outline trigger is the useful half here: it
+ * paints `--ui-border` and `--ui-fg`, so it covers both the hairline and the ink.
+ */
+export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          "    <Popover>…</Popover>",
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
+  render: (args) => (
+    <ThemeMatrixGrid>
+      {(brand, scheme) => (
+        <Popover {...args}>
+          <PopoverTrigger
+            render={<Button variant="outline">{`${scheme} ${brand}`}</Button>}
+          />
+          <PopoverContent>
+            <PopoverTitle>{`Share in ${scheme} ${brand}`}</PopoverTitle>
+            <PopoverDescription>
+              Anyone with the link can view it.
+            </PopoverDescription>
+          </PopoverContent>
+        </Popover>
+      )}
+    </ThemeMatrixGrid>
+  ),
+  play: async ({ canvasElement }) => {
+    const triggerIn = (cell: HTMLElement) => within(cell).getByRole("button");
+
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "light", triggerIn, "borderTopColor"),
+    );
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "dark", triggerIn, "borderTopColor"),
+    );
+    await expectSchemesDiffer(canvasElement);
   },
 };
