@@ -28,6 +28,10 @@ style preference.
   those a `size` would mean recomputing geometry per step, not swapping a height.
   Watch the native `size` attribute: `<input size>` is a character width, so wrapping
   `ComponentProps` needs `Omit<…, "size">` or the variant is a type error.
+  `Toolbar` is the deliberate exception in the other direction: its items are fixed at the
+  `sm` height and take no `size`, because a toolbar is one dense row of actions with no
+  second size to be. That is a contract rather than a coincidence only because
+  `ToolbarItemsAreFixedAtSmall` in `Guides/Sizing` measures it next to a `Button size="sm"`.
 - **Logical properties, not physical ones.** `ps-*`/`pe-*`, `ms-*`/`me-*`, `inset-s-*`/
   `inset-e-*`, `border-s`/`border-e`, `rounded-s-*`/`rounded-e-*`, `text-start`/`text-end`.
   Four things have no logical form and need an explicit `rtl:` variant instead — a

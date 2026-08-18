@@ -10,6 +10,12 @@ import {
   SelectTrigger,
 } from "../components/select/select.js";
 import { Toggle } from "../components/toggle/toggle.js";
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarLink,
+  ToolbarSeparator,
+} from "../components/toolbar/toolbar.js";
 
 /**
  * The control scale, measured instead of agreed.
@@ -21,8 +27,8 @@ import { Toggle } from "../components/toggle/toggle.js";
  *
  * It was not always true. `DataTable` used to write `className="h-8 w-20"` onto a
  * `SelectTrigger` by hand so it would match the `size="sm"` buttons of the `Pagination`
- * beside it, and `ToolbarButton` still measures `h-8` only because that happens to equal
- * `Button` `sm`. This story is what stops the next such coincidence from going unnoticed.
+ * beside it. This story is what stops the next such coincidence from going unnoticed —
+ * including the one below it, which is why `ToolbarItemsAreFixedAtSmall` exists.
  */
 const meta = {
   title: "Guides/Sizing",
@@ -132,6 +138,60 @@ export const ControlsOfOneSizeAlign: Story = {
             `${size}/${name}: ${Math.round(height)}px, expected ${HEIGHTS[size]}px`,
           );
         }
+      }
+    }
+
+    await expect(mismatches).toEqual([]);
+  },
+};
+
+/**
+ * Behaviour check, not a usage example — kept out of the docs page.
+ *
+ * `Toolbar` is the one place in the kit where the scale is honoured without a `size` prop.
+ * Its items write `h-8` directly and take no `size`, deliberately: a toolbar is a dense row
+ * of icon-sized actions and there is no second size for it to be. What was missing is that
+ * 32px was a coincidence rather than a contract — nothing connected `ToolbarButton` to
+ * `Button` `sm`, so either could have moved without the other noticing.
+ *
+ * This is the connection. A toolbar item, a toolbar link and a composed `Button size="sm"`
+ * are rendered in the same row and asserted to be the same documented height, which is the
+ * only thing that actually has to hold: they sit next to each other, so they must line up.
+ */
+export const ToolbarItemsAreFixedAtSmall: Story = {
+  tags: ["!autodocs"],
+  render: () => (
+    <Toolbar aria-label="Text formatting">
+      <ToolbarButton>Bold</ToolbarButton>
+      <ToolbarSeparator />
+      <ToolbarLink href="#sizing">Docs</ToolbarLink>
+      <ToolbarSeparator />
+      {/* Composed rather than plain, because composition is the documented usage and it
+          is what would break first: `ToolbarButton` drops its own classes when `render`
+          is present, so the height then comes entirely from `Button`. */}
+      <ToolbarButton
+        render={
+          <Button size="sm" variant="ghost">
+            Save
+          </Button>
+        }
+      />
+    </Toolbar>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const mismatches: string[] = [];
+
+    const items: Array<[string, Element]> = [
+      ["toolbar-button", canvas.getByRole("button", { name: "Bold" })],
+      ["toolbar-link", canvas.getByRole("link", { name: "Docs" })],
+      ["composed-button", canvas.getByRole("button", { name: "Save" })],
+    ];
+
+    for (const [name, element] of items) {
+      const height = Math.round(element.getBoundingClientRect().height);
+      if (height !== HEIGHTS.sm) {
+        mismatches.push(`${name}: ${height}px, expected ${HEIGHTS.sm}px`);
       }
     }
 

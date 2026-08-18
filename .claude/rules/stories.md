@@ -17,7 +17,8 @@ test and an accessibility audit.
   `Guides/Tokens`, which measures the palette. `storySort` in `.storybook/preview.tsx`
   depends on all three.
 - **`satisfies Meta<typeof X>`**, never a bare annotation — it is what keeps `StoryObj`
-  arg-typed.
+  arg-typed. **CSF 3, not CSF Factories** — see the note at the end for why, and do not
+  reopen it without new evidence.
 - **Prop descriptions come from `variantArgType` / `classNameArgType`** in
   `.storybook/arg-types.js`. `react-docgen-typescript` cannot see variant props (they come
   from the mapped `VariantProps<…>`) and `className` is filtered out with the inherited HTML
@@ -50,3 +51,29 @@ test and an accessibility audit.
   `role="region"`, so its trigger text has to be unique across the whole matrix or axe
   reports `landmark-unique`. Components with a single fixed-name viewport (`ToastProvider`)
   are mounted once around the whole grid instead.
+
+## CSF Factories stays out — measured, 2026-08-18
+
+`npx storybook automigrate csf-factories` was run over all 45 files on Storybook 10.5.8 and
+the result thrown away. What it produced:
+
+- **45 broken imports.** The codemod writes `from "../../../.storybook/preview"` with no
+  extension. `nodenext` rejects that (TS2835), and the extension rule is not a preference
+  here — it is what keeps the `tsup --no-bundle` output valid ESM.
+- **71 × TS2883**, and this one is structural. `export const X = meta.story({…})` infers
+  the exported type instead of annotating it, so TS has to be able to _write that type
+  down_ — and it transitively names Base UI internals like `PopoverHandle` from
+  `@base-ui/react/popover/index.parts.mjs`, which no public path re-exports. "Not
+  portable." Fixing it means either a `preview.type<…>()` on every file, which is more
+  ceremony than the `satisfies` it replaced, or moving `declaration` out of the root
+  tsconfig — changing how the whole repo is type-checked to accommodate a story format.
+- **12 of 45 test files stopped importing**, taking 83 of 235 tests with them.
+  `@storybook/addon-vitest` — the thing that runs the suite — was never added to
+  `definePreview`, which is storybookjs/storybook#32626.
+
+Against that: the format is still labelled a preview feature whose "API may change in
+future releases", while CSF 3 is explicitly supported "for the foreseeable future" and is
+not deprecated.
+
+**Revisit when the docs stop calling it a preview feature.** Then re-run the migration and
+check the three items above; the first is a `sed`, the second is the one that decides it.
