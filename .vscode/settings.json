@@ -1,0 +1,18 @@
+{
+  // The editor has to be told where TypeScript lives, because `typescript` is an alias.
+  //
+  // package.json installs TypeScript twice on purpose: `tsc` is 7.0.2 (the Go compiler,
+  // used by `typecheck` and `build:types`) and the name `typescript` resolves to a 6.0.2
+  // shim, which is the only API `typescript-eslint`, `react-docgen-typescript` and `tsup`
+  // can consume until TS 7.1 ships a stable one.
+  //
+  // That shim re-exports the compiler but ships none of the 107 `lib.*.d.ts` files, so an
+  // editor pointed at `node_modules/typescript/lib` reports `Cannot find name 'Promise'`
+  // in every file. The real library sits one level down, under the shim's own dependency,
+  // and that is what this points at. It also means the editor and `npm run lint` share a
+  // checker; `npm run typecheck` is the one that runs TS 7, and CI is the tiebreaker.
+  //
+  // VS Code will ask once whether to use this instead of its bundled TypeScript. Say yes.
+  "typescript.tsdk": "node_modules/@typescript/old/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}

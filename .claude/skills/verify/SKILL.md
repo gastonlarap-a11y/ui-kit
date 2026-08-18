@@ -14,8 +14,13 @@ real Chromium, and the tarball is packed exactly as npm would.
 npm run lint && npm run typecheck && npm run format:check
 ```
 
-Roughly 4 s together. The `Stop` hook already runs these at the end of every turn, so a
+Roughly 3 s together. The `Stop` hook already runs these at the end of every turn, so a
 failure here means something changed since.
+
+`typecheck` runs TypeScript 7 (`tsc`), `lint` runs TypeScript 6 through
+`typescript-eslint` — see the note in AGENTS.md for why both are installed. If the two ever
+disagree, `typecheck` is the authority and `npx tsc6 --noEmit` is how you get the old
+compiler's opinion on the same files.
 
 ## 2. The suite
 
@@ -88,6 +93,20 @@ ship (187 files today).
 
 Worth reading `dist/` directly when the change touched the build: the `"use client"` banners
 must survive, since `tsup` runs with `bundle: false` precisely to keep them.
+
+`attw` prints the build tools it found and will name `typescript@npm:@typescript/typescript6`
+there. That is the alias in `package.json`, not what emitted the declarations — `build:types`
+runs `tsc`, which is TypeScript 7. If a change ever makes you doubt the emit, compare the two
+compilers directly rather than trusting either:
+
+```bash
+npx tsc6 -p tsconfig.build.json --outDir /tmp/dts-6
+npx tsc  -p tsconfig.build.json --outDir /tmp/dts-7
+diff -r /tmp/dts-6 /tmp/dts-7
+```
+
+All 91 files were identical when TypeScript 7 was adopted; that is the check that let
+`build:types` move off `tsc6`.
 
 ## 5. The docs site
 
