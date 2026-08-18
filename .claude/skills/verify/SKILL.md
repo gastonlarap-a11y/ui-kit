@@ -23,29 +23,54 @@ failure here means something changed since.
 npm run test
 ```
 
-24 story files, 80 tests, ~6 s. Each story is an interaction test and an axe audit at once;
-`a11y: { test: "error" }` makes any violation a failing test.
+45 story files, 235 tests, ~7 s. Each story is an interaction test and an axe audit at
+once; `a11y: { test: "error" }` makes any violation a failing test, and the run is pinned
+to WCAG 2.2 AA plus `best-practice` in `.storybook/preview.tsx`.
 
-This command binds a local port, so it is in `sandbox.excludedCommands` — it runs outside
-the sandbox by design, not by accident.
+To iterate on one component, pass its directory — a single file runs in about 1.5 s
+instead of 7:
+
+```bash
+npx vitest run --project storybook src/components/<name>
+```
+
+Both commands bind a local port, so they are in `sandbox.excludedCommands` — they run
+outside the sandbox by design, not by accident.
+
+When a new check passes on the first try, prove it can fail before believing it. Both
+guards added in this area were vacuous until tested with a deliberate violation: pinning
+the axe tags does _not_ enable `target-size`, and a contrast assertion measures nothing if
+the colour never parsed. Add a failing case, watch it fail, remove it.
 
 ## 3. Architecture invariants
 
-Cheap greps that replace an import-graph tool. All three must print nothing:
+Cheap greps that replace an import-graph tool. All three must print nothing.
+
+Each carries the exemptions the architecture actually allows, so a clean run means clean.
+Without them the composites (`confirm`, `data-table`, `pagination`) trip every check on
+every run, and a guard that always cries wolf stops being read. **Adding a name to
+`COMPOSITES` is a deliberate architecture decision, not a way to silence a failure** — see
+the composite rule in AGENTS.md.
 
 ```bash
-# No component imports another component (only src/lib/ is shared)
-grep -rn 'from "\.\./' src/components/*/[a-z]*.tsx | grep -v stories | grep -v '/lib/'
+COMPOSITES='confirm|data-table|pagination'
 
-# "use client" exactly where @base-ui/react is imported, nowhere else
+# Only a composite imports another component; an atom shares nothing but src/lib/
+grep -rn 'from "\.\./' src/components/*/[a-z]*.tsx | grep -v stories | grep -v '/lib/' \
+  | grep -vE "src/components/($COMPOSITES)/"
+
+# "use client" exactly where @base-ui/react is imported — plus the composites, which
+# earn it by holding state rather than by wrapping Base UI
 for f in src/components/*/[a-z]*.tsx; do case "$f" in *stories*) continue;; esac
+  echo "$f" | grep -qE "/($COMPOSITES)/" && continue
   grep -q '"use client"' "$f"; uc=$?
   grep -q '@base-ui/react' "$f"; bu=$?
   [ "$uc" = "$bu" ] || echo "MISMATCH: $f"
 done
 
-# Every component carries at least one data-slot
-for f in src/components/*/[a-z]*.tsx; do case "$f" in *stories*) continue;; esac
+# Every component carries at least one data-slot. `confirm` is exempt: it is a provider
+# that renders AlertDialog's parts and has no element of its own to tag.
+for f in src/components/*/[a-z]*.tsx; do case "$f" in *stories*|*/confirm/*) continue;; esac
   grep -q 'data-slot' "$f" || echo "NO data-slot: $f"
 done
 ```
@@ -59,7 +84,7 @@ npm run pack-check && npm run check:tarball
 `pack-check` builds, then runs publint and attw against the packed tarball rather than the
 source — it is what catches a broken `exports` map or a type that does not resolve.
 `check:tarball` asserts nothing but `LICENSE`, `README.md`, `dist` and `package.json` ever
-ship (107 files today).
+ship (187 files today).
 
 Worth reading `dist/` directly when the change touched the build: the `"use client"` banners
 must survive, since `tsup` runs with `bundle: false` precisely to keep them.

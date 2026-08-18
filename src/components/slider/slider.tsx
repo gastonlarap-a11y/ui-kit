@@ -95,7 +95,7 @@ export function SliderThumb({
       data-slot="slider-thumb"
       className={cn(
         "size-4 rounded-full border-2 border-accent bg-surface shadow-sm",
-        "transition-[box-shadow] duration-150 outline-none",
+        "transition-[box-shadow] duration-(--ui-duration-fast) ease-out outline-none",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "data-disabled:cursor-not-allowed data-disabled:opacity-50",
         className,

@@ -2,6 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, within } from "storybook/test";
 
 import { classNameArgType } from "../../../.storybook/arg-types.js";
+import {
+  expectBrandsDiffer,
+  expectSchemesDiffer,
+  readPerBrand,
+  ThemeMatrixGrid,
+} from "../../../.storybook/theme-matrix.js";
 import { Radio, RadioGroup } from "./radio.js";
 
 const meta = {
@@ -62,5 +68,68 @@ export const ArrowKeysMoveBetweenOptions: Story = {
       canvas.getByRole("radio", { name: "Enterprise" }),
     ).toBeChecked();
     await expect(pro).not.toBeChecked();
+  },
+};
+
+/**
+ * The selected radio is the only place `--ui-accent-fg` is painted as a shape rather
+ * than as text: the inner dot is `bg-accent-fg` on `bg-accent`. If that pair ever
+ * collapses the control still looks checked to a sighted user at a glance, so nothing
+ * short of comparing the two computed colours catches it.
+ */
+export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          '    <RadioGroup name="plan" defaultValue="pro">…</RadioGroup>',
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
+  render: (args) => (
+    <ThemeMatrixGrid>
+      {(brand, scheme) => (
+        <RadioGroup {...args} name={`${scheme}-${brand}`} defaultValue="on">
+          <label className="flex items-center gap-2 text-sm text-fg">
+            <Radio value="on" />
+            <span>on</span>
+          </label>
+          <label className="flex items-center gap-2 text-sm text-fg">
+            <Radio value="off" />
+            <span>off</span>
+          </label>
+        </RadioGroup>
+      )}
+    </ThemeMatrixGrid>
+  ),
+  play: async ({ canvasElement }) => {
+    const selected = (cell: HTMLElement) =>
+      within(cell).getByRole("radio", { name: "on" });
+
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "light", selected, "backgroundColor"),
+    );
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "dark", selected, "backgroundColor"),
+    );
+
+    // The dot must stay a different colour from the fill it sits on.
+    for (const scheme of ["light", "dark"] as const) {
+      const radio = selected(
+        within(canvasElement).getByTestId(`cell-${scheme}-blue`),
+      );
+      const dot = radio.querySelector('[data-slot="radio-indicator"]');
+      if (!dot) throw new Error("the selected radio rendered no indicator");
+      await expect(getComputedStyle(dot).backgroundColor).not.toBe(
+        getComputedStyle(radio).backgroundColor,
+      );
+    }
+
+    await expectSchemesDiffer(canvasElement);
   },
 };

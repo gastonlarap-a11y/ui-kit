@@ -92,6 +92,42 @@ Scoped to part of a page:
 
 Use the toolbar at the top of this page to preview any component in either theme.
 
+## Sizing
+
+Controls that can sit in a row share one scale, so they line up without a height override:
+
+| `size` | Height         |
+| ------ | -------------- |
+| `sm`   | 32px           |
+| `md`   | 36px (default) |
+| `lg`   | 44px           |
+
+```tsx
+<div className="flex items-center gap-2">
+  <Input size="sm" placeholder="Search" />
+  <Button size="sm">Go</Button>
+</div>
+```
+
+`Button`, `Input`, `Textarea`, `SelectTrigger` and `Toggle` take it. `Checkbox`, `Radio`,
+`Switch` and `NumberField` do not: their geometry is tied to details that do not scale by
+swapping a height, and a wrong `size` there would look aligned while being off by a pixel.
+
+## Right-to-left
+
+The components use logical CSS, so they follow the document's direction with no props of
+their own:
+
+```tsx
+<html lang="ar" dir="rtl">
+```
+
+`Drawer` is the one place with a choice to make. `side="start"` and `side="end"` follow the
+reading direction; `side="left"` and `side="right"` mean the physical edge of the screen
+whatever the direction is. Pick whichever the panel actually means.
+
+Use the Direction control in this site's toolbar to preview any component either way.
+
 ## Overriding styles
 
 Every component accepts `className`, merged with `tailwind-merge`. Conflicting

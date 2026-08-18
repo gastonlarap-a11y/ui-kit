@@ -5,6 +5,7 @@ export {
   SelectGroupLabel,
   SelectItem,
   SelectTrigger,
+  selectTriggerVariants,
   type SelectContentProps,
   type SelectItemProps,
   type SelectProps,

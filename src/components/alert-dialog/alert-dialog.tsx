@@ -69,19 +69,20 @@ export function AlertDialogContent({
       <BaseAlertDialog.Backdrop
         data-slot="alert-dialog-backdrop"
         className={cn(
-          "fixed inset-0 bg-black/50 transition-opacity duration-200",
+          "fixed inset-0 bg-scrim",
+          "transition-opacity duration-(--ui-duration-base) ease-out",
           "data-ending-style:opacity-0 data-starting-style:opacity-0",
         )}
       />
       <BaseAlertDialog.Viewport
         data-slot="alert-dialog-viewport"
-        className="fixed inset-0 grid place-items-center overflow-y-auto p-4"
+        className="fixed inset-0 grid scrollbar-thin scrollbar-thumb-border-strong scrollbar-track-transparent place-items-center overflow-y-auto p-4"
       >
         <BaseAlertDialog.Popup
           data-slot="alert-dialog-content"
           className={cn(
-            "flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-surface p-6 text-fg shadow-lg",
-            "transition-[opacity,transform] duration-200",
+            "flex w-full max-w-md flex-col gap-4 rounded-lg border border-border bg-surface-overlay p-6 text-fg shadow-lg",
+            "transition-[opacity,transform] duration-(--ui-duration-base) ease-out",
             "data-ending-style:scale-95 data-ending-style:opacity-0",
             "data-starting-style:scale-95 data-starting-style:opacity-0",
             className,

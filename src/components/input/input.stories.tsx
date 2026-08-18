@@ -2,7 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
-import { classNameArgType } from "../../../.storybook/arg-types.js";
+import {
+  classNameArgType,
+  variantArgType,
+} from "../../../.storybook/arg-types.js";
 import { Input } from "./input.js";
 
 const meta = {
@@ -10,6 +13,12 @@ const meta = {
   component: Input,
   args: { placeholder: "you@company.com" },
   argTypes: {
+    size: variantArgType(
+      ["sm", "md", "lg"],
+      "Control height: 32, 36 or 44px. `md` is the default, and the same three steps " +
+        "`Button`, `SelectTrigger` and `Toggle` use, so controls of one size line up in " +
+        "a row.",
+    ),
     onClear: {
       description:
         "Shows a clear button while the field has content. Controlled only — the " +
@@ -139,6 +148,47 @@ function Clearable() {
 
 export const WithClearButton: Story = {
   render: () => <Clearable />,
+};
+
+/**
+ * Behaviour check, not a usage example — kept out of the docs page.
+ *
+ * `className` styles the group, so a width narrows the whole control and the clear button
+ * stays with it. It did not: the group was pinned to `w-full` while `className` went to
+ * the field, so `<Input className="w-56" onClear={…} />` put the button at the far edge of
+ * the page. The assertion is geometric because the bug was — every class involved was
+ * correct on its own.
+ */
+export const ClearButtonStaysWithTheField: Story = {
+  tags: ["!autodocs"],
+  render: () => (
+    <div className="w-96">
+      <Input
+        aria-label="Search"
+        value="ada@example.com"
+        onValueChange={() => undefined}
+        onClear={() => undefined}
+        className="w-56"
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByLabelText("Search");
+    const clear = canvas.getByRole("button", { name: "Clear" });
+
+    const group = field.closest('[data-slot="input-wrapper"]');
+    if (!group) throw new Error("the input rendered no group");
+
+    // The width lands on the group, not on some full-width ancestor of it.
+    await expect(Math.round(group.getBoundingClientRect().width)).toBe(224);
+
+    // And the button is inside that box rather than off at the container's edge.
+    const box = group.getBoundingClientRect();
+    const button = clear.getBoundingClientRect();
+    await expect(button.right).toBeLessThanOrEqual(box.right);
+    await expect(button.left).toBeGreaterThanOrEqual(box.left);
+  },
 };
 
 /** Behaviour check, not a usage example — kept out of the docs page. */

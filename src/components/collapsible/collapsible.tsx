@@ -42,7 +42,7 @@ export function CollapsibleTrigger({
       data-slot="collapsible-trigger"
       className={cn(
         "flex cursor-default items-center gap-2 rounded-md text-sm font-medium text-fg",
-        "transition-colors outline-none hover:text-fg-muted",
+        "transition-colors duration-(--ui-duration-fast) ease-out outline-none hover:text-fg-muted",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
         className,
@@ -62,7 +62,7 @@ export function CollapsiblePanel({
       data-slot="collapsible-panel"
       className={cn(
         "overflow-hidden text-sm text-fg-muted",
-        "h-[var(--collapsible-panel-height)] transition-[height] duration-200",
+        "h-[var(--collapsible-panel-height)] transition-[height] duration-(--ui-duration-base) ease-out",
         "data-ending-style:h-0 data-starting-style:h-0",
         className,
       )}

@@ -29,12 +29,31 @@ breaks that.
   by `PortalledDialogFollowsTheDocumentTheme` in `confirm.stories.tsx`. Scoped theming is
   for in-place components; an app that themes per subtree _and_ needs matching popups has
   to pass Base UI's `container` prop, which the kit does not surface today.
-- **Recompute contrast before changing any color.** All 42 foreground/background pairs
-  across three brands and both schemes are verified against WCAG AA; the tightest today is
-  4.85:1. Record the new tightest ratio in the changeset.
-- **Elevation is scheme-aware.** A black shadow is invisible on a dark surface, so there the
-  lift comes from the surface being lighter than the canvas and the shadow only separates
-  the layer.
+- **Contrast is measured, not recomputed by hand.** `Guides/Tokens`
+  (`src/docs/tokens.stories.tsx`) paints every documented pair in all six combinations and
+  asserts its WCAG ratio, so a colour edit that drops one below the floor fails the run.
+  Add the pair there when you add a token, and record the new tightest ratio in the
+  changeset. Do not trust arithmetic over the measurement: several accents sit outside the
+  sRGB gamut and the browser gamut-maps them, so a calculated ratio and a painted one can
+  disagree.
+- **Two border tokens, and the difference is not cosmetic.** `--ui-border-strong` is for
+  the edge of the thing you click or type into, where SC 1.4.11 asks 3:1 — inputs,
+  textareas, checkboxes, radios, the switch track, the select trigger, the OTP boxes, the
+  number-field perimeter, the typeahead input group, the `outline` button.
+  `--ui-border` is the hairline for what groups, separates or frames: separators, table
+  rules, the card outline, popup edges, container borders, the number field's internal
+  divider. Darkening the single token instead would have hit `Separator`, which paints
+  nothing else, and turned the number field into a visible three-cell grid.
+- **Elevation is scheme-aware, and has three tiers.** `--ui-canvas` < `--ui-surface` <
+  `--ui-surface-overlay`. A black shadow is invisible on a dark surface, so there the lift
+  comes from each tier being lighter than the one below; in light mode `surface` and
+  `surface-overlay` are both white and the shadow does the work. Portalled popups use
+  `bg-surface-overlay`, in-place surfaces use `bg-surface`.
+- **Timings are tokens so reduced motion is one media query.** `--ui-duration-fast|base|slow`,
+  consumed as `duration-(--ui-duration-base)` — Tailwind v4 has no `--duration-*` namespace,
+  so there is no `duration-base` utility to reach for. Under
+  `prefers-reduced-motion: reduce` all three collapse to **1ms, never 0**: Base UI unmounts
+  a popup when its transition ends, and a zero duration can skip the event and strand it.
 - **No font family, ever.** The kit inherits the host application's; shipping one would
   force every consumer to download it.
 - `compiled.entry.css` is the precompiled fallback for non-Tailwind consumers. It must stay

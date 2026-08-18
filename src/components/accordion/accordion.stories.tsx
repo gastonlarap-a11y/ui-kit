@@ -3,6 +3,12 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import { classNameArgType } from "../../../.storybook/arg-types.js";
 import {
+  expectBrandsDiffer,
+  expectSchemesDiffer,
+  readPerBrand,
+  ThemeMatrixGrid,
+} from "../../../.storybook/theme-matrix.js";
+import {
   Accordion,
   AccordionItem,
   AccordionPanel,
@@ -68,5 +74,73 @@ export const TogglesAndExposesExpandedState: Story = {
       expect(trigger).toHaveAttribute("aria-expanded", "true"),
     );
     await expect(canvas.getByText(/Per seat, charged monthly/)).toBeVisible();
+  },
+};
+
+/**
+ * One item open so both halves of the type hierarchy are audited at once: the trigger is
+ * `--ui-fg` and the panel body is `--ui-fg-muted`, and the muted one is the pair that
+ * gets close to the 4.5:1 floor. The item borders carry the brand tint.
+ */
+export const ThemeMatrix: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: [
+          '<div className="dark">',
+          '  <div data-theme="purple">',
+          "    <Accordion>…</Accordion>",
+          "  </div>",
+          "</div>",
+        ].join("\n"),
+      },
+    },
+  },
+  render: (args) => (
+    <ThemeMatrixGrid>
+      {/*
+       * Base UI gives an open panel `role="region"` labelled by its trigger, which makes
+       * it a landmark. Six of them in one canvas means the trigger text has to be unique
+       * across the whole matrix, not just within a cell, or axe reports `landmark-unique`.
+       */}
+      {(brand, scheme) => (
+        <Accordion {...args} defaultValue={["open"]} className="w-52">
+          <AccordionItem value="open">
+            <AccordionTrigger>{`${scheme} ${brand}`}</AccordionTrigger>
+            <AccordionPanel>{`Charged monthly in ${brand}.`}</AccordionPanel>
+          </AccordionItem>
+          <AccordionItem value="shut">
+            <AccordionTrigger>{`${scheme} ${brand} collapsed`}</AccordionTrigger>
+            <AccordionPanel>Hidden until opened.</AccordionPanel>
+          </AccordionItem>
+        </Accordion>
+      )}
+    </ThemeMatrixGrid>
+  ),
+  play: async ({ canvasElement }) => {
+    const itemIn = (cell: HTMLElement) => {
+      const item = cell.querySelector('[data-slot="accordion-item"]');
+      if (!item) throw new Error("the matrix cell rendered no accordion item");
+      return item;
+    };
+
+    // The divider between items is the only brand-carrying surface here.
+    await expectBrandsDiffer(
+      readPerBrand(canvasElement, "light", itemIn, "borderBottomColor"),
+    );
+
+    // Trigger ink and panel ink are deliberately two different tokens.
+    for (const scheme of ["light", "dark"] as const) {
+      const cell = within(canvasElement).getByTestId(`cell-${scheme}-blue`);
+      await expect(
+        getComputedStyle(
+          within(cell).getByRole("button", { name: `${scheme} blue` }),
+        ).color,
+      ).not.toBe(
+        getComputedStyle(within(cell).getByText(/Charged monthly/)).color,
+      );
+    }
+
+    await expectSchemesDiffer(canvasElement);
   },
 };

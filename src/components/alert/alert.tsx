@@ -73,7 +73,7 @@ export function Alert({
       role={interrupts ? "alert" : "status"}
       className={alertVariants({
         variant,
-        className: cn(onDismiss && "relative pr-10", className),
+        className: cn(onDismiss && "relative pe-10", className),
       })}
       {...props}
     >
@@ -85,8 +85,8 @@ export function Alert({
           aria-label={dismissLabel}
           onClick={onDismiss}
           className={cn(
-            "absolute top-3 right-3 rounded-sm p-1 text-fg-muted",
-            "transition-colors outline-none hover:text-fg",
+            "absolute inset-e-3 top-3 rounded-sm p-1 text-fg-muted",
+            "transition-colors duration-(--ui-duration-fast) ease-out outline-none hover:text-fg",
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           )}
         >

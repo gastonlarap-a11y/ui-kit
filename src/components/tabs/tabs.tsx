@@ -62,9 +62,12 @@ export function TabsTab({
       data-slot="tabs-tab"
       className={cn(
         "-mb-px cursor-default border-b-2 border-transparent px-3 py-2 text-sm font-medium text-fg-muted",
-        "transition-colors outline-none hover:text-fg",
+        "transition-colors duration-(--ui-duration-fast) ease-out outline-none hover:text-fg",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-        "data-selected:border-accent data-selected:text-fg",
+        // Base UI marks the selected tab with `data-active`; there is no `data-selected`
+        // on `Tabs.Tab`. Styling the wrong attribute left the selected tab with no
+        // visible state at all — `aria-selected` was the only thing that changed.
+        "data-active:border-accent data-active:text-fg",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
         className,
       )}

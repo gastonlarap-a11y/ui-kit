@@ -32,14 +32,14 @@ export function NumberField({ className, ...props }: NumberFieldProps) {
       <BaseNumberField.Group
         data-slot="number-field-group"
         className={cn(
-          "flex h-9 w-full items-center overflow-hidden rounded-md border border-border bg-surface shadow-sm",
+          "flex h-9 w-full items-center overflow-hidden rounded-md border border-border-strong bg-surface shadow-sm",
           "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring",
           "data-disabled:cursor-not-allowed data-disabled:opacity-50",
         )}
       >
         <BaseNumberField.Decrement
           data-slot="number-field-decrement"
-          className={stepperClasses("border-r")}
+          className={stepperClasses("border-e")}
         >
           <MinusIcon className="size-4" />
         </BaseNumberField.Decrement>
@@ -51,7 +51,7 @@ export function NumberField({ className, ...props }: NumberFieldProps) {
 
         <BaseNumberField.Increment
           data-slot="number-field-increment"
-          className={stepperClasses("border-l")}
+          className={stepperClasses("border-s")}
         >
           <PlusIcon className="size-4" />
         </BaseNumberField.Increment>
@@ -60,11 +60,16 @@ export function NumberField({ className, ...props }: NumberFieldProps) {
   );
 }
 
-/** Both steppers are identical apart from which side carries the divider. */
+/**
+ * Both steppers are identical apart from which side carries the divider.
+ *
+ * The divider stays on the soft `--ui-border` while the group's perimeter uses the strong
+ * one: matching them would turn a single control into a visible three-cell grid.
+ */
 function stepperClasses(side: string): string {
   return cn(
     "flex h-full w-9 shrink-0 items-center justify-center border-border text-fg-muted",
-    "transition-colors duration-150 ease-out hover:bg-muted hover:text-fg",
+    "transition-colors duration-(--ui-duration-fast) ease-out hover:bg-muted hover:text-fg",
     "disabled:pointer-events-none disabled:opacity-50",
     side,
   );

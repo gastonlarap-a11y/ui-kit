@@ -93,7 +93,11 @@ export function AvatarGroup({
       className={cn(
         /* The ring is what separates one avatar from the one it overlaps; without it
            the stack reads as a single blob at small sizes. */
-        "flex items-center -space-x-2 [&_[data-slot=avatar]]:ring-2 [&_[data-slot=avatar]]:ring-surface",
+        "flex items-center [&_[data-slot=avatar]]:ring-2 [&_[data-slot=avatar]]:ring-surface",
+        /* `space-x-*` compiles to a physical `margin-left` and Tailwind has no logical
+           form of it, so the stack is reversed by hand to keep overlapping toward the
+           reading direction. */
+        "-space-x-2 rtl:space-x-reverse",
         className,
       )}
       {...props}
@@ -102,7 +106,7 @@ export function AvatarGroup({
       {overflow > 0 ? (
         <span
           data-slot="avatar-group-overflow"
-          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-fg ring-2 ring-surface"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-fg tabular-nums ring-2 ring-surface"
         >
           +{overflow}
         </span>

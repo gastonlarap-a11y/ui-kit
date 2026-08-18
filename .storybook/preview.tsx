@@ -76,21 +76,27 @@ function ThemedDocsContainer(props: ComponentProps<typeof DocsContainer>) {
  * Theme attributes go on `<html>`, not on a wrapper element, because portalled
  * content (dialogs, popovers) is attached to `document.body` and would otherwise
  * render outside the themed subtree.
+ *
+ * `dir` goes there for the same reason, and gets the same caveat: a portalled popup
+ * inherits the document's direction, not the one of the subtree its trigger sits in.
  */
 function ThemedCanvas({
   theme,
   scheme,
+  direction,
   children,
 }: {
   theme: string;
   scheme: string;
+  direction: string;
   children: ReactNode;
 }) {
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute("data-theme", theme);
+    root.setAttribute("dir", direction);
     root.classList.toggle("dark", scheme === "dark");
-  }, [theme, scheme]);
+  }, [theme, scheme, direction]);
 
   return <div className="min-h-24 bg-canvas p-6 text-fg">{children}</div>;
 }
@@ -99,6 +105,7 @@ const withTheme: Decorator = (Story, context) => (
   <ThemedCanvas
     theme={String(context.globals.theme)}
     scheme={String(context.globals.scheme)}
+    direction={String(context.globals.direction)}
   >
     <Story />
   </ThemedCanvas>
@@ -131,15 +138,56 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    direction: {
+      description: "Writing direction",
+      toolbar: {
+        title: "Direction",
+        icon: "transfer",
+        items: [
+          { value: "ltr", title: "Left to right" },
+          { value: "rtl", title: "Right to left" },
+        ],
+        dynamicTitle: true,
+      },
+    },
   },
   initialGlobals: {
     theme: "blue",
     scheme: "light",
+    direction: "ltr",
   },
   parameters: {
     controls: { expanded: true },
-    /* Any axe violation fails the Vitest run rather than just showing a warning. */
-    a11y: { test: "error" },
+    /**
+     * Any axe violation fails the Vitest run rather than just showing a warning.
+     *
+     * The tag list is pinned rather than left to axe's default so the standard the kit
+     * claims to meet is written down and cannot drift with an axe-core bump. It is a
+     * superset of what ran before: `best-practice` is kept so nothing that used to be
+     * caught stops being caught, and `wcag22aa` is what pulls in WCAG 2.2.
+     *
+     * `target-size` (SC 2.5.8, 24x24 CSS px) has to be enabled by hand: it is the only
+     * WCAG 2.2 rule axe-core 4.13 ships and it is off by default, so selecting the tag
+     * alone would silently check nothing. AAA rules stay out — `color-contrast-enhanced`
+     * would demand 7:1 and the kit targets AA.
+     */
+    a11y: {
+      test: "error",
+      options: {
+        runOnly: {
+          type: "tag",
+          values: [
+            "wcag2a",
+            "wcag2aa",
+            "wcag21a",
+            "wcag21aa",
+            "wcag22aa",
+            "best-practice",
+          ],
+        },
+        rules: { "target-size": { enabled: true } },
+      },
+    },
     docs: {
       /* Show the usage snippet expanded instead of behind a "Show code" button —
          reading how to use a component should not need a click. */

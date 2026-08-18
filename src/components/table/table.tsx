@@ -41,7 +41,10 @@ export function Table({
   ...props
 }: TableHTMLAttributes<HTMLTableElement> & { ref?: Ref<HTMLTableElement> }) {
   return (
-    <div data-slot="table-container" className="w-full overflow-x-auto">
+    <div
+      data-slot="table-container"
+      className="w-full scrollbar-thin scrollbar-thumb-border-strong scrollbar-track-transparent overflow-x-auto"
+    >
       <table
         data-slot="table"
         className={cn(
@@ -92,7 +95,7 @@ export function TableRow({
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b border-border transition-colors hover:bg-muted",
+        "border-b border-border transition-colors duration-(--ui-duration-fast) ease-out hover:bg-muted",
         className,
       )}
       {...props}
@@ -109,7 +112,10 @@ export function TableHead({
   return (
     <th
       data-slot="table-head"
-      className={cn("px-3 py-2 text-left font-medium text-fg-muted", className)}
+      className={cn(
+        "px-3 py-2 text-start font-medium text-fg-muted",
+        className,
+      )}
       {...props}
     />
   );

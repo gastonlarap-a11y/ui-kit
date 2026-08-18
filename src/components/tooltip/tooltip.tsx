@@ -49,7 +49,7 @@ export function TooltipContent({
           data-slot="tooltip-content"
           className={cn(
             "max-w-64 rounded-md bg-fg px-2.5 py-1.5 text-xs text-canvas shadow-md",
-            "transition-[opacity,transform] duration-150",
+            "transition-[opacity,transform] duration-(--ui-duration-fast) ease-out",
             "data-ending-style:scale-95 data-ending-style:opacity-0",
             "data-starting-style:scale-95 data-starting-style:opacity-0",
             className,

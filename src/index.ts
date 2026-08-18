@@ -206,6 +206,7 @@ export {
   SelectGroupLabel,
   SelectItem,
   SelectTrigger,
+  selectTriggerVariants,
   type SelectContentProps,
   type SelectItemProps,
   type SelectProps,
@@ -253,7 +254,11 @@ export {
   ToolbarSeparator,
   type ToolbarProps,
 } from "./components/toolbar/index.js";
-export { Toggle, type ToggleProps } from "./components/toggle/index.js";
+export {
+  Toggle,
+  toggleVariants,
+  type ToggleProps,
+} from "./components/toggle/index.js";
 export {
   ToggleGroup,
   type ToggleGroupProps,

@@ -61,7 +61,7 @@ export function Progress({
       >
         <BaseProgress.Indicator
           data-slot="progress-indicator"
-          className="h-full bg-accent transition-[width] duration-300"
+          className="h-full bg-accent transition-[width] duration-(--ui-duration-slow) ease-out"
         />
       </BaseProgress.Track>
     </BaseProgress.Root>

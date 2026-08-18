@@ -54,8 +54,8 @@ export function PopoverContent({
         <BasePopover.Popup
           data-slot="popover-content"
           className={cn(
-            "flex w-72 flex-col gap-2 rounded-lg border border-border bg-surface p-4 text-fg shadow-lg",
-            "transition-[opacity,transform] duration-150",
+            "flex w-72 flex-col gap-2 rounded-lg border border-border bg-surface-overlay p-4 text-fg shadow-lg",
+            "transition-[opacity,transform] duration-(--ui-duration-fast) ease-out",
             "data-ending-style:scale-95 data-ending-style:opacity-0",
             "data-starting-style:scale-95 data-starting-style:opacity-0",
             className,
