@@ -28,7 +28,7 @@ compiler's opinion on the same files.
 npm run test
 ```
 
-45 story files, 235 tests, ~7 s. Each story is an interaction test and an axe audit at
+45 story files, 236 tests, ~7 s. Each story is an interaction test and an axe audit at
 once; `a11y: { test: "error" }` makes any violation a failing test, and the run is pinned
 to WCAG 2.2 AA plus `best-practice` in `.storybook/preview.tsx`.
 
